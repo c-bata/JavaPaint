@@ -6,9 +6,8 @@ Java+Swingでお絵かきソフト
 
 
 
-### .gitignoreの記述
+# .gitignore
 
 - classファイル
-- PNGファイル
 
-は.gitignoreで除外
+は除外

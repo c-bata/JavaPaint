@@ -20,14 +20,14 @@ public class DrawGraphics extends JPanel implements ActionListener{
 		//描画域を生成
 		area = new DrawByMouse();
 		// 図形選択
-		brect = new JButton("", new ImageIcon("./rect.png"));
-		boval = new JButton("", new ImageIcon("./oval.png"));
-		bline = new JButton("", new ImageIcon("./line.png"));
-		bpolygon = new JButton("", new ImageIcon("./polygon.png"));
-		bpolyline = new JButton("", new ImageIcon("./polyline.png"));
-		bselect = new JButton("", new ImageIcon("./select.png"));
-		btext = new JButton("", new ImageIcon("./text.png"));
-		bpencil = new JButton("", new ImageIcon("./pencil.png"));
+		brect = new JButton("", new ImageIcon("./img/rect.png"));
+		boval = new JButton("", new ImageIcon("./img/oval.png"));
+		bline = new JButton("", new ImageIcon("./img/line.png"));
+		bpolygon = new JButton("", new ImageIcon("./img/polygon.png"));
+		bpolyline = new JButton("", new ImageIcon("./img/polyline.png"));
+		bselect = new JButton("", new ImageIcon("./img/select.png"));
+		btext = new JButton("", new ImageIcon("./img/text.png"));
+		bpencil = new JButton("", new ImageIcon("./img/pencil.png"));
 		/*
 		brect.setPreferredSize(new Dimension(10, 10));
 		boval.setPreferredSize(new Dimension(10, 10));

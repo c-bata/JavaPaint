@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.io.*;
+import java.util.*;
 
 class DrawGraphics extends JPanel implements ActionListener{
 
@@ -10,8 +12,15 @@ class DrawGraphics extends JPanel implements ActionListener{
 	final int RECT = 1, OVAL = 2, LINE=3, POLYGON=4, POLYLINE=5, SELECT=6, TEXT=7, PENCIL=8;
 	int type = RECT;
 
-	JLabel position;
+	//ArrayList<String> stringList = new ArrayList<String>();
+	//ArrayList<String> x1List = new ArrayList<String>();
+	//ArrayList<String> x2List = new ArrayList<String>();
+	//ArrayList<String> y1List = new ArrayList<String>();
+	//ArrayList<String> y2List = new ArrayList<String>();
 
+	JLabel position,info;
+
+	//引数なしのコンストラクタ
 	public DrawGraphics(){
 		brect = new JButton("", new ImageIcon("./img/rect.png"));
 		boval = new JButton("", new ImageIcon("./img/oval.png"));
@@ -47,21 +56,69 @@ class DrawGraphics extends JPanel implements ActionListener{
 		//container.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		//container.add(object);
 
+		JPanel footer = new JPanel();
+		position = new JLabel("(none,none)");
+		info = new JLabel("");
+		footer.add(position);
+		footer.add(info);
+
 		setLayout(new BorderLayout());
 		mouse = new DrawByMouse();
 		add(mouse, BorderLayout.CENTER);
-		position = new JLabel("(none,none)");
-		add(position, BorderLayout.SOUTH);
+		add(footer, BorderLayout.SOUTH);
 		add(object, BorderLayout.EAST);
-
 	}
+
+
+	//引数ありのコンストラクタ.newFileの時はこっちのオブジェクト生成する。
+	//public DrawGraphics(String str){
+	//}
+
+	// dataOpenメソッドで利用
+	private static boolean checkBeforeReadfile(File file){
+		if (file.exists()){
+			if (file.isFile() && file.canRead()){
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	public void newFile(){
 		System.out.println("Creating new file ....");
 	}
 
-	public void dataOpen(){
-		System.out.println("Opening data ....");
+	public void dataOpen(){ // ほぼ実装済み
+
+		JFileChooser filechooser = new JFileChooser();
+		filechooser.addChoosableFileFilter(new JsonFilter()); // jsonにフィルタ
+
+		int selected = filechooser.showOpenDialog(this);
+		if (selected == JFileChooser.APPROVE_OPTION){
+			File file = filechooser.getSelectedFile();
+
+			//System.out.println(file.getName());
+
+			try{
+				if (checkBeforeReadfile(file)){
+					BufferedReader br = new BufferedReader(new FileReader(file));
+
+					String str;
+					while((str = br.readLine()) != null){
+						info.setText(str);
+					}
+
+					br.close();
+				}else{
+					info.setText("ファイルが見つからないか開けません");
+				}
+			}catch(FileNotFoundException err){
+				System.out.println(err);
+			}catch(IOException err){
+				System.out.println(err);
+			}
+		}
 	}
 
 	public void saveAs(){

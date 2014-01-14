@@ -1,6 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.io.*;
+import java.util.*;
+
 
 public class JavaPaint extends JFrame implements ActionListener{
 
@@ -111,15 +114,47 @@ public class JavaPaint extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
 		Object obj=e.getSource();
+
 		if(actionCommand.equals("newFile")){
+			//ここはFileChooserDialogいらない
 			graphics.newFile();
 		}else if(actionCommand.equals("dataOpen")){
 			graphics.dataOpen();
 		}else if(actionCommand.equals("saveAs")){
+
+			JFileChooser filechooser = new JFileChooser();
+			filechooser.setDialogTitle("名前を付けて保存"); // titleを変更
+			int selected = filechooser.showSaveDialog(this);
+
+			if (selected == JFileChooser.APPROVE_OPTION){
+				File file = filechooser.getSelectedFile();
+				System.out.println(file.getName());
+			}else if (selected == JFileChooser.CANCEL_OPTION){
+				System.out.println("キャンセルされました");
+			}else if (selected == JFileChooser.ERROR_OPTION){
+				System.out.println("エラー又は取消しがありました");
+			}
+
 			graphics.saveAs();
+
 		}else if(actionCommand.equals("save")){
+			//ここはFileChooserDialogいらない
 			graphics.save();
 		}else if(actionCommand.equals("dataExport")){
+
+			JFileChooser filechooser = new JFileChooser();
+			filechooser.setDialogTitle("画像を出力"); // titleを変更
+			int selected = filechooser.showSaveDialog(this);
+
+			if (selected == JFileChooser.APPROVE_OPTION){
+				File file = filechooser.getSelectedFile();
+				System.out.println(file.getName()+"を出力しました");
+			}else if (selected == JFileChooser.CANCEL_OPTION){
+				System.out.println("キャンセルされました");
+			}else if (selected == JFileChooser.ERROR_OPTION){
+				System.out.println("エラー又は取消しがありました");
+			}
+
 			graphics.dataExport();
 		}else if(actionCommand.equals("unDo")){
 			graphics.unDo();

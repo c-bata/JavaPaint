@@ -21,14 +21,15 @@ Java+Swingでお絵かきソフト
 11. 複数の図形を書けるようにする
 12. PNG,JPG,GIFで保存
 13. File選択ダイアログの実装
+13. 保存せずに終了したら，保存するか確認する。
+
 
 #### 参考図書・サイト
 
 - [Java Drive](http://www.javadrive.jp/)
-
-    - [Swingを使ってみよう](http://www.javadrive.jp/tutorial/)
-
-    - [メニューの作成](http://www.javadrive.jp/tutorial/jmenu/)
+	- [Swingを使ってみよう](http://www.javadrive.jp/tutorial/)
+	- [メニューの作成](http://www.javadrive.jp/tutorial/jmenu/)
+	- [JFileChooserクラス](http://www.javadrive.jp/tutorial/jfilechooser/)
 
 - [Swing](http://www.tohoho-web.com/java/swing.htm#JPopupMenu)
 

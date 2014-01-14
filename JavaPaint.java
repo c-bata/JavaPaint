@@ -90,13 +90,13 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menuitem2_2.addActionListener(this);
 
 		menuitem1_1.setActionCommand("newFile");
-		menuitem1_2.setActionCommand("Open");
-		menuitem1_3.setActionCommand("Save");
-		menuitem1_4.setActionCommand("overWrite");
-		menuitem1_5.setActionCommand("export");
+		menuitem1_2.setActionCommand("dataOpen");
+		menuitem1_3.setActionCommand("saveAs");
+		menuitem1_4.setActionCommand("save");
+		menuitem1_5.setActionCommand("dataExport");
 		menuitem1_6.setActionCommand("exit");
-		menuitem2_1.setActionCommand("undo");
-		menuitem2_2.setActionCommand("redo");
+		menuitem2_1.setActionCommand("unDo");
+		menuitem2_2.setActionCommand("reDo");
 
 		frame.setJMenuBar(menubar);
 
@@ -112,20 +112,20 @@ public class JavaPaint extends JFrame implements ActionListener{
 		String actionCommand = e.getActionCommand();
 		Object obj=e.getSource();
 		if(actionCommand.equals("newFile")){
-			System.exit(0);
-		}else if(actionCommand.equals("Open")){
-			System.exit(0);
-		}else if(actionCommand.equals("Save")){
-			System.exit(0);
-		}else if(actionCommand.equals("overWrite")){
-			System.exit(0);
-		}else if(actionCommand.equals("export")){
-			System.exit(0);
+			graphics.newFile();
+		}else if(actionCommand.equals("dataOpen")){
+			graphics.dataOpen();
+		}else if(actionCommand.equals("saveAs")){
+			graphics.saveAs();
+		}else if(actionCommand.equals("save")){
+			graphics.save();
+		}else if(actionCommand.equals("dataExport")){
+			graphics.dataExport();
+		}else if(actionCommand.equals("unDo")){
+			graphics.unDo();
+		}else if(actionCommand.equals("reDo")){
+			graphics.reDo();
 		}else if(actionCommand.equals("exit")){
-			System.exit(0);
-		}else if(actionCommand.equals("undo")){
-			System.exit(0);
-		}else if(actionCommand.equals("redo")){
 			System.exit(0);
 		}
 	}

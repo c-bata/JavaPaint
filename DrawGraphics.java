@@ -56,6 +56,36 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	}
 
+	public void newFile(){
+		System.out.println("Creating new file ....");
+	}
+
+	public void dataOpen(){
+		System.out.println("Opening data ....");
+	}
+
+	public void saveAs(){
+		System.out.println("Saving as ....");
+	}
+
+	public void save(){
+		System.out.println("Saving Data ....");
+	}
+
+	public void dataExport(){
+		System.out.println("dataExport ...");
+	}
+
+	public void unDo(){
+		System.out.println("undo ....");
+	}
+
+	public void reDo(){
+		System.out.println("redo ....");
+	}
+
+
+
 	public void actionPerformed(ActionEvent e) {
 
 		//String actionCommand = e.getActionCommand();

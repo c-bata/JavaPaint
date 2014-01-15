@@ -12,11 +12,12 @@ class DrawGraphics extends JPanel implements ActionListener{
 	final int RECT = 1, OVAL = 2, LINE=3, POLYGON=4, POLYLINE=5, SELECT=6, TEXT=7, PENCIL=8;
 	int type = RECT;
 
-	//ArrayList<String> stringList = new ArrayList<String>();
-	//ArrayList<String> x1List = new ArrayList<String>();
-	//ArrayList<String> x2List = new ArrayList<String>();
-	//ArrayList<String> y1List = new ArrayList<String>();
-	//ArrayList<String> y2List = new ArrayList<String>();
+	ArrayList<Integer> typeList = new ArrayList<Integer>();
+	ArrayList<Integer> x1List = new ArrayList<Integer>();
+	ArrayList<Integer> x2List = new ArrayList<Integer>();
+	ArrayList<Integer> y1List = new ArrayList<Integer>();
+	ArrayList<Integer> y2List = new ArrayList<Integer>();
+	ArrayList<Boolean> addInfoList = new ArrayList<Boolean>();
 
 	JLabel position,info;
 
@@ -51,7 +52,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		object.add(btext);
 		object.add(bpencil);
 
-
 		//JPanel container = new JPanel();
 		//container.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		//container.add(object);
@@ -74,6 +74,14 @@ class DrawGraphics extends JPanel implements ActionListener{
 	//public DrawGraphics(String str){
 	//}
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+	public void newFile(){
+		System.out.println("Creating new file ....");
+	}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	// dataOpenメソッドで利用
 	private static boolean checkBeforeReadfile(File file){
 		if (file.exists()){
@@ -82,11 +90,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 		}
 		return false;
-	}
-
-
-	public void newFile(){
-		System.out.println("Creating new file ....");
 	}
 
 	public void dataOpen(){ // ほぼ実装済み
@@ -121,28 +124,64 @@ class DrawGraphics extends JPanel implements ActionListener{
 		}
 	}
 
-	public void saveAs(){
-		System.out.println("Saving as ....");
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+	public void saveAs(File file){
+		try{
+
+			if (file.exists() == false){
+				file.createNewFile();
+				System.out.println("ファイルがないので作ります");
+			}
+
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+
+			for(int i=0; i < typeList.size() ; i++){
+				bw.write(typeList.get(i) + ",");
+				bw.write(x1List.get(i) + ",");
+				bw.write(y1List.get(i) + ",");
+				bw.write(x2List.get(i) + ",");
+				bw.write(y2List.get(i));
+				bw.newLine();
+			}
+			bw.close();
+
+		}catch(IOException e){
+			System.out.println(e);
+			info.setText("ファイルが開けません");
+		}
 	}
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	public void save(){
 		System.out.println("Saving Data ....");
 	}
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	public void dataExport(){
 		System.out.println("dataExport ...");
 	}
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	public void unDo(){
 		System.out.println("undo ....");
 	}
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	public void reDo(){
 		System.out.println("redo ....");
 	}
 
 
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	public void actionPerformed(ActionEvent e) {
 
 		//String actionCommand = e.getActionCommand();
@@ -178,31 +217,64 @@ class DrawGraphics extends JPanel implements ActionListener{
 			addMouseMotionListener(this);
 		}
 
-		private void exchange(){
-			if(x1 > x2){
-				w1 = x2; w2 = x1;
+		private void exchange(int a1, int b1, int a2, int b2){
+			if(a1 > a2){
+				w1 = a2; w2 = a1;
 			}else{
-				w1 = x1; w2 = x2;
+				w1 = a1; w2 = a2;
 			}
-			if(y1 > y2){
-				h1 = y2; h2 = y1;
+			if(b1 > b2){
+				h1 = b2; h2 = b1;
 			}else{
-				h1 = y1; h2 = y2;
+				h1 = b1; h2 = b2;
 			}
 			w2-=w1;	h2-=h1;
 		}
 
+		private void listAdd(){
+			typeList.add(type);
+			x1List.add(x1);
+			x2List.add(x2);
+			y1List.add(y1);
+			y2List.add(y2);
+			//if(type!=LINE || type!=RECT || type!=OVAL)
+			//	addInfoList.add(true);
+			//}else
+			addInfoList.add(false);
+		}
+
+
 		protected void paintComponent(Graphics g){    //paintComponentメソッドを再定義
 			super.paintComponent(g);	//superクラスのpaintComponentの実行
+
+			if(typeList.size() > 0){
+				for(int i = 0 ; i < typeList.size() ; i++){
+					if(typeList.get(i) == LINE){
+						g.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+					}else if(typeList.get(i) == RECT){
+						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+						g.fillRect( w1, h1, w2, h2);
+						//g.setColor(c[line_color]);
+						g.drawRect( w1, h1, w2, h2);
+					}else if(typeList.get(i) == OVAL){
+						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+						g.fillOval( w1, h1, w2, h2);
+						//g.setColor(c[line_color]);
+						g.drawOval( w1, h1, w2, h2);
+					}
+				}
+			}
+
+
 			if(type == LINE){
 				g.drawLine(x1,y1,x2,y2);
 			}else if(type == RECT){
-				exchange();
+				exchange(x1,y1,x2,y2);
 				g.fillRect( w1, h1, w2, h2);
 				//g.setColor(c[line_color]);
 				g.drawRect( w1, h1, w2, h2);
 			}else if(type == OVAL){
-				exchange();
+				exchange(x1,y1,x2,y2);
 				g.fillOval( w1, h1, w2, h2);
 				//g.setColor(c[line_color]);
 				g.drawOval( w1, h1, w2, h2);
@@ -225,6 +297,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			position.setText("(" + Integer.toString(x) + "," + Integer.toString(y) + ")");
 		}
 		public void mouseReleased(MouseEvent e){
+			listAdd();
 		}
 		public void mouseClicked(MouseEvent e){
 		}

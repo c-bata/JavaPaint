@@ -21,10 +21,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	JLabel position,info;
 
-
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-
 	//引数なしのコンストラクタ
 	public DrawGraphics(){
 		brect = new JButton("", new ImageIcon("./img/rect.png"));
@@ -78,10 +76,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 	//public DrawGraphics(String str){
 	//}
 
-
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-//ArrayListを初期化
+// 実装済み
 	public void newFile(){
 		mouse.initList();
 		mouse.repaint();
@@ -103,6 +100,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	public void dataOpen(){ // ほぼ実装済み
 
+		mouse.initList(); // 一度ArrayListをクリア
+
 		JFileChooser filechooser = new JFileChooser();
 		filechooser.addChoosableFileFilter(new JsonFilter()); // jsonにフィルタ
 
@@ -115,11 +114,19 @@ class DrawGraphics extends JPanel implements ActionListener{
 			try{
 				if (checkBeforeReadfile(file)){
 					BufferedReader br = new BufferedReader(new FileReader(file));
+					info.setText(file.getName() + "を読み込みました.");
 
 					String str;
 					while((str = br.readLine()) != null){
-						info.setText(str);
+						String[] element = str.split(",", -1);
+						typeList.add(Integer.parseInt(element[0]));
+						x1List.add(Integer.parseInt(element[1]));
+						y1List.add(Integer.parseInt(element[2]));
+						x2List.add(Integer.parseInt(element[3]));
+						y2List.add(Integer.parseInt(element[4]));
+						//System.out.println(Integer.parseInt(element[0]) + " , " + Integer.parseInt(element[1]) + " , " + Integer.parseInt(element[2]) + " , " + Integer.parseInt(element[3]) + " , " + element[4] + " , " + typeList.size());
 					}
+					mouse.repaint();
 
 					br.close();
 				}else{
@@ -135,16 +142,15 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-
 	public void saveAs(File file){
 		try{
-
 			if (file.exists() == false){
 				file.createNewFile();
 				System.out.println("ファイルがないので作ります");
 			}
 
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+			info.setText(file.getName() + "にセーブしました.");
 
 
 			for(int i=0; i < typeList.size() ; i++){
@@ -152,7 +158,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				bw.write(x1List.get(i) + ",");
 				bw.write(y1List.get(i) + ",");
 				bw.write(x2List.get(i) + ",");
-				bw.write(y2List.get(i));
+				bw.write(y2List.get(i) + ",");
 				bw.newLine();
 			}
 			bw.close();
@@ -195,8 +201,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		System.out.println("redo ....");
 	}
 
-
-
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void actionPerformed(ActionEvent e) {
@@ -223,6 +227,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 		}
 	}
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{
 
 		int x, y, w1, h1, w2, h2, x1, y1, x2, y2;
@@ -271,7 +277,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			x2List.add(x2);
 			y1List.add(y1);
 			y2List.add(y2);
-			//if(type!=LINE || type!=RECT || type!=OVAL)
+			//if(type!=LINE || type!=RECT || type!=OVAL){
 			//	addInfoList.add(true);
 			//}else
 			addInfoList.add(false);
@@ -312,12 +318,13 @@ class DrawGraphics extends JPanel implements ActionListener{
 				//g.setColor(c[line_color]);
 				g.drawOval( w1, h1, w2, h2);
 			}
-
 		}
 
 		public void mousePressed(MouseEvent e){ 
 			x1 = e.getX();
 			y1 = e.getY();
+			x2 = e.getX(); //x2,y2も初期化しないと一瞬へんな出力が起きる.
+			y2 = e.getY();
 		}
 		public void mouseDragged(MouseEvent e){ 
 			x2 = e.getX();

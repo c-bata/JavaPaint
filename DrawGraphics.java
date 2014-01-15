@@ -21,6 +21,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	JLabel position,info;
 
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 	//引数なしのコンストラクタ
 	public DrawGraphics(){
 		brect = new JButton("", new ImageIcon("./img/rect.png"));
@@ -74,14 +78,19 @@ class DrawGraphics extends JPanel implements ActionListener{
 	//public DrawGraphics(String str){
 	//}
 
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+//ArrayListを初期化
 	public void newFile(){
+		mouse.initList();
+		mouse.repaint();
 		System.out.println("Creating new file ....");
 	}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+//ArrayListを初期化→ファイルの内容をArrayListに追加していく.
 	// dataOpenメソッドで利用
 	private static boolean checkBeforeReadfile(File file){
 		if (file.exists()){
@@ -170,6 +179,14 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 	public void unDo(){
 		System.out.println("undo ....");
+		//個々では消さない∵redo
+		//int index = typeList.size();
+		//typeList.remove(index);
+		//x1List.remove(index);
+		//y1List.remove(index);
+		//x2List.remove(index);
+		//y2List.remove(index);
+		//addInfoList.remove(index);
 	}
 
 //////////////////////////////////////////////////////////////////////
@@ -209,6 +226,23 @@ class DrawGraphics extends JPanel implements ActionListener{
 	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{
 
 		int x, y, w1, h1, w2, h2, x1, y1, x2, y2;
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//各リストを初期化
+	private void initList(){
+		typeList.clear();
+		x1List.clear();
+		x2List.clear();
+		y1List.clear();
+		y2List.clear();
+		addInfoList.clear();
+		// typeを0にすると次にボタンを押すまで図形が書けない
+		x1 = 0;
+		y1 = 0;
+		x2 = 0;
+		y2 = 0;
+	}
 
 		DrawByMouse(){
 			setBackground(Color.white);
@@ -265,7 +299,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 				}
 			}
 
-
 			if(type == LINE){
 				g.drawLine(x1,y1,x2,y2);
 			}else if(type == RECT){
@@ -279,6 +312,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				//g.setColor(c[line_color]);
 				g.drawOval( w1, h1, w2, h2);
 			}
+
 		}
 
 		public void mousePressed(MouseEvent e){ 

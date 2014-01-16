@@ -12,6 +12,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 	final int RECT = 1, OVAL = 2, LINE=3, POLYGON=4, POLYLINE=5, SELECT=6, TEXT=7, PENCIL=8;
 	int type = RECT;
 
+	int doCount = 0;
+
 	ArrayList<Integer> typeList = new ArrayList<Integer>();
 	ArrayList<Integer> x1List = new ArrayList<Integer>();
 	ArrayList<Integer> x2List = new ArrayList<Integer>();
@@ -153,7 +155,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText(file.getName() + "にセーブしました.");
 
 
-			for(int i=0; i < typeList.size() ; i++){
+			for(int i=0; i < typeList.size() - doCount ; i++){
 				bw.write(typeList.get(i) + ",");
 				bw.write(x1List.get(i) + ",");
 				bw.write(y1List.get(i) + ",");
@@ -173,6 +175,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 	public void save(){
 		System.out.println("Saving Data ....");
+		info.setText("データを上書き保存しました.");
 	}
 
 //////////////////////////////////////////////////////////////////////
@@ -184,21 +187,35 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void unDo(){
-		System.out.println("undo ....");
-		//個々では消さない∵redo
-		//int index = typeList.size();
-		//typeList.remove(index);
-		//x1List.remove(index);
-		//y1List.remove(index);
-		//x2List.remove(index);
-		//y2List.remove(index);
-		//addInfoList.remove(index);
+		if(doCount < typeList.size()){
+			doCount++;
+			mouse.repaint();
+			info.setText("undo!");
+			mouse.x1 = 0;
+			mouse.y1 = 0;
+			mouse.x2 = 0;
+			mouse.y2 = 0;
+		}else{
+			info.setText("can't undo!");
+		}
 	}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void reDo(){
 		System.out.println("redo ....");
+		if(doCount > 0){
+			doCount--;
+			mouse.repaint();
+			info.setText("redo!");
+			mouse.x1 = 0;
+			mouse.y1 = 0;
+			mouse.x2 = 0;
+			mouse.y2 = 0;
+		}else{
+			info.setText("can't redo!");
+		}
+
 	}
 
 //////////////////////////////////////////////////////////////////////
@@ -248,6 +265,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 		y1 = 0;
 		x2 = 0;
 		y2 = 0;
+		// doCountをreset
+		doCount = 0;
 	}
 
 		DrawByMouse(){
@@ -272,15 +291,25 @@ class DrawGraphics extends JPanel implements ActionListener{
 		}
 
 		private void listAdd(){
-			typeList.add(type);
-			x1List.add(x1);
-			x2List.add(x2);
-			y1List.add(y1);
-			y2List.add(y2);
-			//if(type!=LINE || type!=RECT || type!=OVAL){
-			//	addInfoList.add(true);
-			//}else
-			addInfoList.add(false);
+			if(doCount > 0){
+				int index = typeList.size()-1-doCount;
+				typeList.set(index,type); //インデックスは0からだから1引く
+				x1List.set(index,x1);
+				y1List.set(index,y1);
+				x2List.set(index,x2);
+				y2List.set(index,y2);
+				addInfoList.set(index,false);
+			}else{
+				typeList.add(type);
+				x1List.add(x1);
+				y1List.add(y1);
+				x2List.add(x2);
+				y2List.add(y2);
+				//if(type!=LINE || type!=RECT || type!=OVAL){
+				//	addInfoList.add(true);
+				//}else
+				addInfoList.add(false);
+			}
 		}
 
 
@@ -288,7 +317,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			super.paintComponent(g);	//superクラスのpaintComponentの実行
 
 			if(typeList.size() > 0){
-				for(int i = 0 ; i < typeList.size() ; i++){
+				for(int i = 0 ; i < typeList.size() - doCount ; i++){
 					if(typeList.get(i) == LINE){
 						g.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 					}else if(typeList.get(i) == RECT){
@@ -318,6 +347,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 				//g.setColor(c[line_color]);
 				g.drawOval( w1, h1, w2, h2);
 			}
+
+			// unDo,reDoのバグシュウセイ用
+			System.out.println("リストのサイズ: " + typeList.size());
+			System.out.println("doCountの値: " + doCount);
 		}
 
 		public void mousePressed(MouseEvent e){ 

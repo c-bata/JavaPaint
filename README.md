@@ -6,6 +6,11 @@ Java+Swingでお絵かきソフト
 まだまだ開発中...
 
 
+### 変更予定
+
+- [背景を指定の色でクリアする](http://www.javadrive.jp/java2d/graphics2d/index5.html)
+- [文字描画に対するアンチエイリアス処理](http://www.javadrive.jp/java2d/graphics2d/index4.html)
+
 ### 機能拡張予定
 
 1. ショートカットキー増やす

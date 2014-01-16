@@ -3,10 +3,13 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 class DrawGraphics extends JPanel implements ActionListener{
 
 	DrawByMouse mouse;
+	BufferedImage bi = null;
 
 	JButton brect, bline, boval, bpolygon, bpolyline, bselect, btext, bpencil;
 	final int RECT = 1, OVAL = 2, LINE=3, POLYGON=4, POLYLINE=5, SELECT=6, TEXT=7, PENCIL=8;
@@ -181,8 +184,14 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-	public void dataExport(){
+	public void dataExport(File file){
 		System.out.println("dataExport ...");
+		try {
+			boolean result = ImageIO.write(bi, "png", file);
+			info.setText("画像を出力しました.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 //////////////////////////////////////////////////////////////////////
@@ -287,6 +296,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 			setPreferredSize(new Dimension(500,500));
 			addMouseListener(this);
 			addMouseMotionListener(this);
+			if (bi == null){
+				bi = new BufferedImage(500, 500, BufferedImage.TYPE_INT_BGR);
+			}
 		}
 
 		private void exchange(int a1, int b1, int a2, int b2){

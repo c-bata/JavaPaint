@@ -165,14 +165,12 @@ public class JavaPaint extends JFrame implements ActionListener{
 
 			if (selected == JFileChooser.APPROVE_OPTION){
 				File file = filechooser.getSelectedFile();
-				System.out.println(file.getName()+"を出力しました");
+				graphics.dataExport(file);
 			}else if (selected == JFileChooser.CANCEL_OPTION){
 				System.out.println("キャンセルされました");
 			}else if (selected == JFileChooser.ERROR_OPTION){
 				System.out.println("エラー又は取消しがありました");
 			}
-
-			graphics.dataExport();
 
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////

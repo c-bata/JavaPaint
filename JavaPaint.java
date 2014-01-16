@@ -8,60 +8,54 @@ import java.util.*;
 public class JavaPaint extends JFrame implements ActionListener{
 
 	DrawGraphics graphics;
-
-	JMenuBar menubar;
-	JMenu menu1, menu2, menu3, submenu1;
-	JRadioButtonMenuItem radiomenuitem1, radiomenuitem2, radiomenuitem3;
-	ButtonGroup group;
-	JMenuItem menuitem1_1, menuitem1_2, menuitem1_3, menuitem1_4, menuitem1_5, menuitem1_6 ,menuitem2_1, menuitem2_2;
-
+	JCheckBoxMenuItem menuitem2_3; //これだけちょっと面倒臭い
 
 	public JavaPaint(){
 		JFrame frame  = new JFrame("Draw Editor");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		menubar = new JMenuBar();
+		JMenuBar menubar = new JMenuBar();
 
-		menu1 = new JMenu("ファイル(F)");
+		JMenu menu1 = new JMenu("ファイル(F)");
 		menu1.setMnemonic(KeyEvent.VK_F);
-		menu2 = new JMenu("編集(E)");
+		JMenu menu2 = new JMenu("編集(E)");
 		menu2.setMnemonic(KeyEvent.VK_E);
-		menu3 = new JMenu("ヘルプ(H)");
+		JMenu menu3 = new JMenu("ヘルプ(H)");
 		menu3.setMnemonic(KeyEvent.VK_H);
 		menubar.add(menu1);
 		menubar.add(menu2);
 		menubar.add(Box.createHorizontalGlue());	// ヘルプは右端に設定
 		menubar.add(menu3);
 
-		submenu1 = new JMenu("画像の形式を変更");
-		radiomenuitem1 = new JRadioButtonMenuItem("PNG");
-		radiomenuitem2 = new JRadioButtonMenuItem("GIF");
-		radiomenuitem3 = new JRadioButtonMenuItem("JPEG");
+		JMenu submenu1 = new JMenu("画像の形式を変更");
+		JRadioButtonMenuItem radiomenuitem1 = new JRadioButtonMenuItem("PNG");
+		JRadioButtonMenuItem radiomenuitem2 = new JRadioButtonMenuItem("GIF");
+		JRadioButtonMenuItem radiomenuitem3 = new JRadioButtonMenuItem("JPEG");
 		submenu1.add(radiomenuitem1);
 		submenu1.add(radiomenuitem2);
 		submenu1.add(radiomenuitem3);
 		radiomenuitem1.setSelected(true);
-		group = new ButtonGroup();
+		ButtonGroup group = new ButtonGroup();
 		group.add(radiomenuitem1);
 		group.add(radiomenuitem2);
 		group.add(radiomenuitem3);
 
-		menuitem1_1 = new JMenuItem("新規(N)");
+		JMenuItem menuitem1_1 = new JMenuItem("新規(N)");
 		menuitem1_1.setMnemonic(KeyEvent.VK_N);
 		menuitem1_1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-		menuitem1_2 = new JMenuItem("開く(O)");
+		JMenuItem menuitem1_2 = new JMenuItem("開く(O)");
 		menuitem1_2.setMnemonic(KeyEvent.VK_O);
 		menuitem1_2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-		menuitem1_3 = new JMenuItem("名前を付けて保存(A)");
+		JMenuItem menuitem1_3 = new JMenuItem("名前を付けて保存(A)");
 		menuitem1_3.setMnemonic(KeyEvent.VK_A);
 		menuitem1_3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
-		menuitem1_4 = new JMenuItem("上書き保存(S)");
+		JMenuItem menuitem1_4 = new JMenuItem("上書き保存(S)");
 		menuitem1_4.setMnemonic(KeyEvent.VK_S);
 		menuitem1_4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-		menuitem1_5 = new JMenuItem("画像で出力(E)");
+		JMenuItem menuitem1_5 = new JMenuItem("画像で出力(E)");
 		menuitem1_5.setMnemonic(KeyEvent.VK_E);
 		menuitem1_5.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
-		menuitem1_6 = new JMenuItem("終了(Q)");
+		JMenuItem menuitem1_6 = new JMenuItem("終了(Q)");
 		menuitem1_6.setMnemonic(KeyEvent.VK_Q);
 		menuitem1_6.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
 		menu1.add(menuitem1_1);
@@ -74,14 +68,18 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menu1.addSeparator();
 		menu1.add(menuitem1_6);
 
-		menuitem2_1 = new JMenuItem("元に戻す(U)");
+		JMenuItem menuitem2_1 = new JMenuItem("元に戻す(U)");
 		menuitem2_1.setMnemonic(KeyEvent.VK_U);
 		menuitem2_1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK));
-		menuitem2_2 = new JMenuItem("やり直し(R)");
+		JMenuItem menuitem2_2 = new JMenuItem("やり直し(R)");
 		menuitem2_2.setMnemonic(KeyEvent.VK_R);
 		menuitem2_2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
+		menuitem2_3 = new JCheckBoxMenuItem("アンチエイリアス");
+		menuitem2_3.setSelected(true);
 		menu2.add(menuitem2_1);
 		menu2.add(menuitem2_2);
+		menu2.addSeparator();
+		menu2.add(menuitem2_3);
 
 		menuitem1_1.addActionListener(this);
 		menuitem1_2.addActionListener(this);
@@ -91,6 +89,7 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menuitem1_6.addActionListener(this);
 		menuitem2_1.addActionListener(this);
 		menuitem2_2.addActionListener(this);
+		menuitem2_3.addActionListener(this);
 
 		menuitem1_1.setActionCommand("newFile");
 		menuitem1_2.setActionCommand("dataOpen");
@@ -100,6 +99,7 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menuitem1_6.setActionCommand("exit");
 		menuitem2_1.setActionCommand("unDo");
 		menuitem2_2.setActionCommand("reDo");
+		menuitem2_3.setActionCommand("antiAliasing");
 
 		frame.setJMenuBar(menubar);
 
@@ -183,6 +183,11 @@ public class JavaPaint extends JFrame implements ActionListener{
 ////////////////////////////////////////////////////////////////////
 		}else if(actionCommand.equals("reDo")){
 			graphics.reDo();
+
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+		}else if(actionCommand.equals("antiAliasing")){
+			graphics.setAntiAliasing(menuitem2_3.isSelected());
 
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////

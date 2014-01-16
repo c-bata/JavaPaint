@@ -13,6 +13,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	int type = RECT;
 
 	int doCount = 0;
+	boolean antiAliasing = true;
 
 	ArrayList<Integer> typeList = new ArrayList<Integer>();
 	ArrayList<Integer> x1List = new ArrayList<Integer>();
@@ -220,6 +221,18 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+	public void setAntiAliasing(boolean state){
+		antiAliasing = state;
+		mouse.repaint();
+		if(state == true){
+			info.setText("アンチエイリアシングを有効にしました.");
+		}else{
+			info.setText("アンチエイリアシングを無効にしました.");
+		}
+	}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	public void actionPerformed(ActionEvent e) {
 
 		//String actionCommand = e.getActionCommand();
@@ -316,15 +329,23 @@ class DrawGraphics extends JPanel implements ActionListener{
 		protected void paintComponent(Graphics g){    //paintComponentメソッドを再定義
 			super.paintComponent(g);	//superクラスのpaintComponentの実行
 
+			Graphics2D g2 = (Graphics2D)g;
+
+			if(antiAliasing == true){
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+			}else{
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_OFF);
+			}
+
 			if(typeList.size() > 0){
 				for(int i = 0 ; i < typeList.size() - doCount ; i++){
 					if(typeList.get(i) == LINE){
-						g.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+						g2.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 					}else if(typeList.get(i) == RECT){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
-						g.fillRect( w1, h1, w2, h2);
+						g2.fillRect( w1, h1, w2, h2);
 						//g.setColor(c[line_color]);
-						g.drawRect( w1, h1, w2, h2);
+						g2.drawRect( w1, h1, w2, h2);
 					}else if(typeList.get(i) == OVAL){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 						g.fillOval( w1, h1, w2, h2);
@@ -347,10 +368,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 				//g.setColor(c[line_color]);
 				g.drawOval( w1, h1, w2, h2);
 			}
-
-			// unDo,reDoのバグシュウセイ用
-			System.out.println("リストのサイズ: " + typeList.size());
-			System.out.println("doCountの値: " + doCount);
 		}
 
 		public void mousePressed(MouseEvent e){ 

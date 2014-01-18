@@ -8,7 +8,7 @@ import java.util.*;
 public class JavaPaint extends JFrame implements ActionListener{
 
 	DrawGraphics graphics;
-	JCheckBoxMenuItem menuitem2_3; //これだけちょっと面倒臭い
+	JCheckBoxMenuItem menuitem2_3 ,menuitem2_4; //これだけちょっと面倒臭い
 
 	public JavaPaint(){
 		JFrame frame  = new JFrame("Draw Editor");
@@ -76,10 +76,13 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menuitem2_2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
 		menuitem2_3 = new JCheckBoxMenuItem("アンチエイリアス");
 		menuitem2_3.setSelected(true);
+		menuitem2_4 = new JCheckBoxMenuItem("グリッド線を表示");
+		menuitem2_4.setSelected(true);
 		menu2.add(menuitem2_1);
 		menu2.add(menuitem2_2);
 		menu2.addSeparator();
 		menu2.add(menuitem2_3);
+		menu2.add(menuitem2_4);
 
 		menuitem1_1.addActionListener(this);
 		menuitem1_2.addActionListener(this);
@@ -90,6 +93,7 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menuitem2_1.addActionListener(this);
 		menuitem2_2.addActionListener(this);
 		menuitem2_3.addActionListener(this);
+		menuitem2_4.addActionListener(this);
 
 		menuitem1_1.setActionCommand("newFile");
 		menuitem1_2.setActionCommand("dataOpen");
@@ -100,6 +104,7 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menuitem2_1.setActionCommand("unDo");
 		menuitem2_2.setActionCommand("reDo");
 		menuitem2_3.setActionCommand("antiAliasing");
+		menuitem2_4.setActionCommand("setGrid");
 
 		frame.setJMenuBar(menubar);
 
@@ -186,6 +191,11 @@ public class JavaPaint extends JFrame implements ActionListener{
 ////////////////////////////////////////////////////////////////////
 		}else if(actionCommand.equals("antiAliasing")){
 			graphics.setAntiAliasing(menuitem2_3.isSelected());
+
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+		}else if(actionCommand.equals("setGrid")){
+			graphics.setGrid(menuitem2_4.isSelected());
 
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////

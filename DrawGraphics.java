@@ -16,7 +16,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 	int type = RECT;
 
 	int doCount = 0;
-	boolean antiAliasing = true;
 
 	ArrayList<Integer> typeList = new ArrayList<Integer>();
 	ArrayList<Integer> x1List = new ArrayList<Integer>();
@@ -101,7 +100,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	public void newFile(){
 		mouse.initList();
 		mouse.repaint();
-		System.out.println("Creating new file ....");
+		info.setText("新しい画像を生成しました.");
 	}
 
 //////////////////////////////////////////////////////////////////////
@@ -229,7 +228,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void reDo(){
-		System.out.println("redo ....");
 		if(doCount > 0){
 			doCount--;
 			mouse.repaint();
@@ -247,12 +245,24 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void setAntiAliasing(boolean state){
-		antiAliasing = state;
+		mouse.antiAliasing = state;
 		mouse.repaint();
 		if(state == true){
 			info.setText("アンチエイリアシングを有効にしました.");
 		}else{
 			info.setText("アンチエイリアシングを無効にしました.");
+		}
+	}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+	public void setGrid(boolean state){
+		mouse.setGrid = state;
+		mouse.repaint();
+		if(state == true){
+			info.setText("グリッド線を表示しました.");
+		}else{
+			info.setText("グリッド線を非表示にしました.");
 		}
 	}
 
@@ -290,9 +300,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 		boolean writeImage = false;
 		BufferedImage bi; //オフスクリーンイメージ
 		Graphics2D g2;  //Graphicsコンテキスト
+		boolean antiAliasing = true, setGrid = true;
 
-		//////////////////////////////////////////////////////////////////////
-		//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 		//各リストを初期化
 		private void initList(){
 			typeList.clear();
@@ -312,10 +323,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 		DrawByMouse(){
 			setBackground(Color.white);
-			setPreferredSize(new Dimension(500,500));
+			setPreferredSize(new Dimension(600,600));
 			addMouseListener(this);
 			addMouseMotionListener(this);
-			bi = new BufferedImage(500, 500, BufferedImage.TYPE_INT_BGR);	//BufferedImageの作成
+			bi = new BufferedImage(600, 600, BufferedImage.TYPE_INT_BGR);	//BufferedImageの作成
 			g2 = bi.createGraphics(); //Graphicsコンテキストを得る
 		}
 
@@ -362,18 +373,19 @@ class DrawGraphics extends JPanel implements ActionListener{
 			drawObject();
 
 			//g.drawImage(bi, 0, 0, this);
-			g.drawImage(bi, 0, 0, 500, 500, this); //コンストラクタは結構種類ある(P.144)
+			g.drawImage(bi, 0, 0, 600, 600, this); //コンストラクタは結構種類ある(P.144)
 
-			//if(writeImage == true){
-			//	try{
-			//		ImageIO.write(bi,"png",new File("shikaku.png"));
-			//	}catch(IOException e){System.out.println("error in write");}
-			//}
+			// drawImageの後じゃないと、上書きされる
+			if(setGrid == true){
+				drawGrid(g);
+			}
 		}
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 		private void drawObject(){
 			g2.setColor(Color.white); //描画色を黒にする
-			g2.fillRect(0,0,500,500); //背景を白くするため描画色で四角を描く
+			g2.fillRect(0,0,600,600); //背景を白くするため描画色で四角を描く
 			g2.setColor(Color.black); //描画色を黒にする
 
 			if(antiAliasing == true){
@@ -415,6 +427,23 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 		}
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+		private void drawGrid(Graphics g){
+				for(int i=1;i<12;i++){
+					if(i!=6){
+						g.setColor(new Color(211,211,211,50));
+					}else{
+						g.setColor(Color.gray);		//真ん中だけちょっと濃い色を表示
+					}
+					g.drawLine(0,i*50,600,i*50);
+					g.drawLine(i*50,0,i*50,600);
+				}
+		}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 		public void mousePressed(MouseEvent e){
 			x1 = e.getX();
 			y1 = e.getY();

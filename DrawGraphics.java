@@ -25,6 +25,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	ArrayList<Integer> y2List = new ArrayList<Integer>();
 	ArrayList<Integer> drawColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineColorList = new ArrayList<Integer>();
+	ArrayList<Integer> lineWidthList = new ArrayList<Integer>();
 
 	JLabel position,info;
 
@@ -32,6 +33,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 	Color [] c = {Color.black, Color.red, Color.yellow, Color.green, Color.blue, Color.white};
 	int line_color = 0;
 	int draw_color = 0;
+
+	JSlider lineSlider;
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -88,10 +91,17 @@ class DrawGraphics extends JPanel implements ActionListener{
 		color.add(new JLabel("塗りつぶしの色"));
 		color.add(drawcolor);
 
+		// スライダー
+		JPanel linewidth = new JPanel();
+		lineSlider = new JSlider();
+		linewidth.add(new JLabel("線の太さ"));
+		linewidth.add(lineSlider);
+
 		JPanel sidepanel = new JPanel();
 		sidepanel.setLayout(new BoxLayout(sidepanel, BoxLayout.Y_AXIS));
 		sidepanel.add(object);
 		sidepanel.add(color);
+		sidepanel.add(linewidth);
 
 
 		/* 構成
@@ -168,6 +178,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 						y2List.add(Integer.parseInt(element[4]));
 						drawColorList.add(Integer.parseInt(element[5]));
 						lineColorList.add(Integer.parseInt(element[6]));
+						lineWidthList.add(Integer.parseInt(element[7]));
 						//System.out.println(Integer.parseInt(element[0]) + " , " + Integer.parseInt(element[1]) + " , " + Integer.parseInt(element[2]) + " , " + Integer.parseInt(element[3]) + " , " + element[4] + " , " + typeList.size());
 					}
 					mouse.repaint();
@@ -205,6 +216,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				bw.write(y2List.get(i) + ",");
 				bw.write(drawColorList.get(i) + ",");
 				bw.write(lineColorList.get(i) + ",");
+				bw.write(lineWidthList.get(i) + ",");
 				bw.newLine();
 			}
 			bw.close();
@@ -336,6 +348,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{
 
 		int x, y, w1, h1, w2, h2, x1, y1, x2, y2;
+		int lineWidth;
 		boolean writeImage = false;
 		BufferedImage bi; //オフスクリーンイメージ
 		Graphics2D g2;  //Graphicsコンテキスト
@@ -353,6 +366,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			y2List.clear();
 			drawColorList.clear();
 			lineColorList.clear();
+			lineWidthList.clear();
 			// typeを0にすると次にボタンを押すまで図形が書けない
 			x1 = 0;
 			y1 = 0;
@@ -371,6 +385,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y2List.remove(b);
 				drawColorList.remove(b);
 				lineColorList.remove(b);
+				lineWidthList.remove(b);
 			}
 			doCount = 0;
 		}
@@ -408,6 +423,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y2List.set(index,y2);
 				drawColorList.set(index,draw_color);
 				lineColorList.set(index,line_color);
+				lineWidthList.set(index,lineWidth);
 				doCount--;
 			}else{
 				typeList.add(type);
@@ -417,6 +433,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y2List.add(y2);
 				drawColorList.add(draw_color);
 				lineColorList.add(line_color);
+				lineWidthList.add(lineWidth);
 			}
 		}
 
@@ -438,6 +455,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 			g2.setColor(Color.white); //描画色を黒にする
 			g2.fillRect(0,0,600,600); //背景を白くするため描画色で四角を描く
 
+			lineWidth = lineSlider.getValue()/10;
+
 			if(antiAliasing == true){
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 			}else{
@@ -446,18 +465,20 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 			if(typeList.size() > 0){
 				for(int i = 0 ; i < typeList.size() - doCount ; i++){
+					BasicStroke wideStroke = new BasicStroke((float)lineWidthList.get(i));	// 線の太さ
+					g2.setStroke(wideStroke);
+					g2.setColor(c[drawColorList.get(i)]);
+
 					if(typeList.get(i) == LINE){
 						g2.setColor(c[lineColorList.get(i)]);
 						g2.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 					}else if(typeList.get(i) == RECT){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
-						g2.setColor(c[drawColorList.get(i)]);
 						g2.fillRect( w1, h1, w2, h2);
 						g2.setColor(c[lineColorList.get(i)]);
 						g2.drawRect( w1, h1, w2, h2);
 					}else if(typeList.get(i) == OVAL){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
-						g2.setColor(c[drawColorList.get(i)]);
 						g2.fillOval( w1, h1, w2, h2);
 						g2.setColor(c[lineColorList.get(i)]);
 						g2.drawOval( w1, h1, w2, h2);
@@ -465,18 +486,19 @@ class DrawGraphics extends JPanel implements ActionListener{
 				}
 			}
 
+			BasicStroke wideStroke = new BasicStroke((float)lineWidth);	// 線の太さ
+			g2.setStroke(wideStroke);
+			g2.setColor(c[draw_color]);
 			if(type == LINE){
 				g2.setColor(c[line_color]);
 				g2.drawLine(x1,y1,x2,y2);
 			}else if(type == RECT){
 				exchange(x1,y1,x2,y2);
-				g2.setColor(c[draw_color]);
 				g2.fillRect( w1, h1, w2, h2);
 				g2.setColor(c[line_color]);
 				g2.drawRect( w1, h1, w2, h2);
 			}else if(type == OVAL){
 				exchange(x1,y1,x2,y2);
-				g2.setColor(c[draw_color]);
 				g2.fillOval( w1, h1, w2, h2);
 				g2.setColor(c[line_color]);
 				g2.drawOval( w1, h1, w2, h2);

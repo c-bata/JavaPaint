@@ -94,6 +94,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 		// スライダー
 		JPanel linewidth = new JPanel();
 		lineSlider = new JSlider();
+		lineSlider.setMajorTickSpacing(10);
+		lineSlider.setMinorTickSpacing(1);
+		lineSlider.setPaintTicks(true);
 		linewidth.add(new JLabel("線の太さ"));
 		linewidth.add(lineSlider);
 
@@ -512,7 +515,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				if(i!=6){
 					g.setColor(new Color(211,211,211,50));
 				}else{
-					g.setColor(Color.gray);		//真ん中だけちょっと濃い色を表示
+					g.setColor(new Color(0, 0, 0,60));		//真ん中だけちょっと濃い色を表示
 				}
 				g.drawLine(0,i*50,600,i*50);
 				g.drawLine(i*50,0,i*50,600);
@@ -574,6 +577,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			listAdd();
 		}
 		public void mouseClicked(MouseEvent e){
+			repaint();     //コンポーネント全体を再描画
 		}
 		public void mouseEntered(MouseEvent e){
 		}

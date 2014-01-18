@@ -60,15 +60,28 @@ class DrawGraphics extends JPanel implements ActionListener{
 		object.add(btext);
 		object.add(bpencil);
 
-		//JPanel container = new JPanel();
-		//container.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		//container.add(object);
+		//JPanel sidebar = new JPanel();
+		//sidebar.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		//sidebar.add(object);
 
 		JPanel footer = new JPanel();
 		position = new JLabel("(none,none)");
 		info = new JLabel("");
 		footer.add(position);
 		footer.add(info);
+
+
+		/* 構成
+		 *
+		 * sidebar(JPanel)		: サイドバー(ボタンとかを配置)
+		 * 		object(JPanel)	: 描画する図形を選択するボタンが配置
+		 *
+		 * footer(JPanel)		: フッター
+		 * 		position(JLabel) : 現在のマウスカーソルの位置を表示
+		 * mouse(JPanel)		: 描画画面
+		 *
+		 *
+		*/
 
 		setLayout(new BorderLayout());
 		mouse = new DrawByMouse();
@@ -185,12 +198,15 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void dataExport(File file){
-		System.out.println("dataExport ...");
+		mouse.writeImage = true;
+		mouse.repaint();
+		mouse.writeImage = false;
 		try {
-			boolean result = ImageIO.write(bi, "png", file);
-			info.setText("画像を出力しました.");
+			if(ImageIO.write(mouse.bi, "png", file)){
+				info.setText("画像を出力しました.");
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("error in write");
 		}
 	}
 
@@ -271,34 +287,36 @@ class DrawGraphics extends JPanel implements ActionListener{
 	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{
 
 		int x, y, w1, h1, w2, h2, x1, y1, x2, y2;
+		boolean writeImage = false;
+		BufferedImage bi; //オフスクリーンイメージ
+		Graphics2D g2;  //Graphicsコンテキスト
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//各リストを初期化
-	private void initList(){
-		typeList.clear();
-		x1List.clear();
-		x2List.clear();
-		y1List.clear();
-		y2List.clear();
-		addInfoList.clear();
-		// typeを0にすると次にボタンを押すまで図形が書けない
-		x1 = 0;
-		y1 = 0;
-		x2 = 0;
-		y2 = 0;
-		// doCountをreset
-		doCount = 0;
-	}
+		//////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////
+		//各リストを初期化
+		private void initList(){
+			typeList.clear();
+			x1List.clear();
+			x2List.clear();
+			y1List.clear();
+			y2List.clear();
+			addInfoList.clear();
+			// typeを0にすると次にボタンを押すまで図形が書けない
+			x1 = 0;
+			y1 = 0;
+			x2 = 0;
+			y2 = 0;
+			// doCountをreset
+			doCount = 0;
+		}
 
 		DrawByMouse(){
 			setBackground(Color.white);
 			setPreferredSize(new Dimension(500,500));
 			addMouseListener(this);
 			addMouseMotionListener(this);
-			if (bi == null){
-				bi = new BufferedImage(500, 500, BufferedImage.TYPE_INT_BGR);
-			}
+			bi = new BufferedImage(500, 500, BufferedImage.TYPE_INT_BGR);	//BufferedImageの作成
+			g2 = bi.createGraphics(); //Graphicsコンテキストを得る
 		}
 
 		private void exchange(int a1, int b1, int a2, int b2){
@@ -317,8 +335,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 		private void listAdd(){
 			if(doCount > 0){
-				int index = typeList.size()-1-doCount;
-				typeList.set(index,type); //インデックスは0からだから1引く
+				int index = typeList.size()-1-doCount; //インデックスは0からだから1引く
+				typeList.set(index,type);
 				x1List.set(index,x1);
 				y1List.set(index,y1);
 				x2List.set(index,x2);
@@ -332,16 +350,31 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y2List.add(y2);
 				//if(type!=LINE || type!=RECT || type!=OVAL){
 				//	addInfoList.add(true);
-				//}else
+				//}else if{
+				//}
 				addInfoList.add(false);
 			}
 		}
 
-
 		protected void paintComponent(Graphics g){    //paintComponentメソッドを再定義
 			super.paintComponent(g);	//superクラスのpaintComponentの実行
 
-			Graphics2D g2 = (Graphics2D)g;
+			drawObject();
+
+			//g.drawImage(bi, 0, 0, this);
+			g.drawImage(bi, 0, 0, 500, 500, this); //コンストラクタは結構種類ある(P.144)
+
+			//if(writeImage == true){
+			//	try{
+			//		ImageIO.write(bi,"png",new File("shikaku.png"));
+			//	}catch(IOException e){System.out.println("error in write");}
+			//}
+		}
+
+		private void drawObject(){
+			g2.setColor(Color.white); //描画色を黒にする
+			g2.fillRect(0,0,500,500); //背景を白くするため描画色で四角を描く
+			g2.setColor(Color.black); //描画色を黒にする
 
 			if(antiAliasing == true){
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
@@ -360,29 +393,29 @@ class DrawGraphics extends JPanel implements ActionListener{
 						g2.drawRect( w1, h1, w2, h2);
 					}else if(typeList.get(i) == OVAL){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
-						g.fillOval( w1, h1, w2, h2);
+						g2.fillOval( w1, h1, w2, h2);
 						//g.setColor(c[line_color]);
-						g.drawOval( w1, h1, w2, h2);
+						g2.drawOval( w1, h1, w2, h2);
 					}
 				}
 			}
 
 			if(type == LINE){
-				g.drawLine(x1,y1,x2,y2);
+				g2.drawLine(x1,y1,x2,y2);
 			}else if(type == RECT){
 				exchange(x1,y1,x2,y2);
-				g.fillRect( w1, h1, w2, h2);
+				g2.fillRect( w1, h1, w2, h2);
 				//g.setColor(c[line_color]);
-				g.drawRect( w1, h1, w2, h2);
+				g2.drawRect( w1, h1, w2, h2);
 			}else if(type == OVAL){
 				exchange(x1,y1,x2,y2);
-				g.fillOval( w1, h1, w2, h2);
+				g2.fillOval( w1, h1, w2, h2);
 				//g.setColor(c[line_color]);
-				g.drawOval( w1, h1, w2, h2);
+				g2.drawOval( w1, h1, w2, h2);
 			}
 		}
 
-		public void mousePressed(MouseEvent e){ 
+		public void mousePressed(MouseEvent e){
 			x1 = e.getX();
 			y1 = e.getY();
 			x2 = e.getX(); //x2,y2も初期化しないと一瞬へんな出力が起きる.

@@ -430,29 +430,51 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 		private void drawGrid(Graphics g){
-				for(int i=1;i<12;i++){
-					if(i!=6){
-						g.setColor(new Color(211,211,211,50));
-					}else{
-						g.setColor(Color.gray);		//真ん中だけちょっと濃い色を表示
-					}
-					g.drawLine(0,i*50,600,i*50);
-					g.drawLine(i*50,0,i*50,600);
+			for(int i=1;i<12;i++){
+				if(i!=6){
+					g.setColor(new Color(211,211,211,50));
+				}else{
+					g.setColor(Color.gray);		//真ん中だけちょっと濃い色を表示
 				}
+				g.drawLine(0,i*50,600,i*50);
+				g.drawLine(i*50,0,i*50,600);
+			}
 		}
 
+
+		public int gridPosition(int a){	//位置を補正.(グリッド線)
+			int b;
+			for(int i=1;i<12;i++){
+				b = i*50;
+				if(Math.abs(b-a) < 8){				//グリッド線との距離が10より小さかったら.
+					a = i*50;
+					break;
+				}
+			}
+			return a;
+		}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 		public void mousePressed(MouseEvent e){
-			x1 = e.getX();
-			y1 = e.getY();
-			x2 = e.getX(); //x2,y2も初期化しないと一瞬へんな出力が起きる.
-			y2 = e.getY();
+			if(setGrid == true){
+				x1 = gridPosition(e.getX());
+				y1 = gridPosition(e.getY());
+			}else{
+				x1 = e.getX();
+				y1 = e.getY();
+			}
+			x2 = x1; //x2,y2も初期化しないと一瞬へんな出力が起きる.
+			y2 = y1;
 		}
 		public void mouseDragged(MouseEvent e){ 
-			x2 = e.getX();
-			y2 = e.getY();
+			if(setGrid == true){
+				x2 = gridPosition(e.getX());
+				y2 = gridPosition(e.getY());
+			}else{
+				x2 = e.getX();
+				y2 = e.getY();
+			}
 			repaint();     //コンポーネント全体を再描画
 			position.setText("開始(" + Integer.toString(x1) + "," + Integer.toString(y1) + ") -> 現在(" + Integer.toString(x2) + "," + Integer.toString(y2) + ")");
 		}
@@ -471,5 +493,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		public void mouseExited(MouseEvent e){
 			position.setText("(none,none)");
 		}
+
 	}
 }

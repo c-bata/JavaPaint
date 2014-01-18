@@ -15,15 +15,23 @@ class DrawGraphics extends JPanel implements ActionListener{
 	final int RECT = 1, OVAL = 2, LINE=3, POLYGON=4, POLYLINE=5, SELECT=6, TEXT=7, PENCIL=8;
 	int type = RECT;
 
+	final int PNG=1, GIF=2, JPG=3;
+	int imageType = PNG;
 
 	ArrayList<Integer> typeList = new ArrayList<Integer>();
 	ArrayList<Integer> x1List = new ArrayList<Integer>();
 	ArrayList<Integer> x2List = new ArrayList<Integer>();
 	ArrayList<Integer> y1List = new ArrayList<Integer>();
 	ArrayList<Integer> y2List = new ArrayList<Integer>();
-	ArrayList<Boolean> addInfoList = new ArrayList<Boolean>();
+	ArrayList<Integer> drawColorList = new ArrayList<Integer>();
+	ArrayList<Integer> lineColorList = new ArrayList<Integer>();
 
 	JLabel position,info;
+
+	JComboBox linecolor,drawcolor; // 線の色,塗りつぶしの色
+	Color [] c = {Color.black, Color.red, Color.yellow, Color.green, Color.blue, Color.white};
+	int line_color = 0;
+	int draw_color = 0;
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -58,34 +66,51 @@ class DrawGraphics extends JPanel implements ActionListener{
 		object.add(btext);
 		object.add(bpencil);
 
-		//JPanel sidebar = new JPanel();
-		//sidebar.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		//sidebar.add(object);
-
 		JPanel footer = new JPanel();
 		position = new JLabel("(none,none)");
 		info = new JLabel("");
 		footer.add(position);
 		footer.add(info);
 
+		// 色の選択
+		String [] list = {"黒","赤","黃","緑","青","なし"};
+		linecolor = new JComboBox(list);
+		linecolor.addActionListener(this);
+		linecolor.setSelectedIndex(line_color); // 初期化
+		drawcolor = new JComboBox(list);
+		drawcolor.addActionListener(this);
+		linecolor.setSelectedIndex(draw_color); // 初期化
+
+		JPanel color = new JPanel();
+		color.setLayout(new GridLayout(2,2));
+		color.add(new JLabel("線の色"));
+		color.add(linecolor);
+		color.add(new JLabel("塗りつぶしの色"));
+		color.add(drawcolor);
+
+		JPanel sidepanel = new JPanel();
+		sidepanel.setLayout(new BoxLayout(sidepanel, BoxLayout.Y_AXIS));
+		sidepanel.add(object);
+		sidepanel.add(color);
+
 
 		/* 構成
 		 *
-		 * sidebar(JPanel)		: サイドバー(ボタンとかを配置)
-		 * 		object(JPanel)	: 描画する図形を選択するボタンが配置
+		 * sidepanel(JPanel)              : サイドバー(ボタンとかを配置)
+		 *              object(JPanel)  : 描画する図形を選択するボタンが配置
 		 *
-		 * footer(JPanel)		: フッター
-		 * 		position(JLabel) : 現在のマウスカーソルの位置を表示
-		 * mouse(JPanel)		: 描画画面
+		 * footer(JPanel)               : フッター
+		 *              position(JLabel) : 現在のマウスカーソルの位置を表示
+		 * mouse(JPanel)                : 描画画面
 		 *
 		 *
-		*/
+		 */
 
 		setLayout(new BorderLayout());
 		mouse = new DrawByMouse();
 		add(mouse, BorderLayout.CENTER);
 		add(footer, BorderLayout.SOUTH);
-		add(object, BorderLayout.EAST);
+		add(sidepanel, BorderLayout.EAST);
 	}
 
 
@@ -93,18 +118,18 @@ class DrawGraphics extends JPanel implements ActionListener{
 	//public DrawGraphics(String str){
 	//}
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-// 実装済み
+	//////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////
+	// 実装済み
 	public void newFile(){
 		mouse.initList();
 		mouse.repaint();
 		info.setText("新しい画像を生成しました.");
 	}
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//ArrayListを初期化→ファイルの内容をArrayListに追加していく.
+	//////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////
+	//ArrayListを初期化→ファイルの内容をArrayListに追加していく.
 	// dataOpenメソッドで利用
 	private static boolean checkBeforeReadfile(File file){
 		if (file.exists()){
@@ -141,6 +166,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 						y1List.add(Integer.parseInt(element[2]));
 						x2List.add(Integer.parseInt(element[3]));
 						y2List.add(Integer.parseInt(element[4]));
+						drawColorList.add(Integer.parseInt(element[5]));
+						lineColorList.add(Integer.parseInt(element[6]));
 						//System.out.println(Integer.parseInt(element[0]) + " , " + Integer.parseInt(element[1]) + " , " + Integer.parseInt(element[2]) + " , " + Integer.parseInt(element[3]) + " , " + element[4] + " , " + typeList.size());
 					}
 					mouse.repaint();
@@ -176,6 +203,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 				bw.write(y1List.get(i) + ",");
 				bw.write(x2List.get(i) + ",");
 				bw.write(y2List.get(i) + ",");
+				bw.write(drawColorList.get(i) + ",");
+				bw.write(lineColorList.get(i) + ",");
 				bw.newLine();
 			}
 			bw.close();
@@ -195,14 +224,24 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+	public void imageOp(int a){
+		imageType = a;
+	}
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 	public void dataExport(File file){
 		mouse.writeImage = true;
 		mouse.repaint();
 		mouse.writeImage = false;
 		try {
-			if(ImageIO.write(mouse.bi, "png", file)){
-				info.setText("画像を出力しました.");
+			if(imageType == PNG){
+				ImageIO.write(mouse.bi, "png", file);
+			}else if(imageType == GIF){
+				ImageIO.write(mouse.bi, "gif", file);
+			}else if(imageType == JPG){
+				ImageIO.write(mouse.bi, "jpg", file);
 			}
+			info.setText(file.getName() + "を出力しました.");
 		} catch (Exception e) {
 			System.out.println("error in write");
 		}
@@ -285,6 +324,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 			type = TEXT;
 		}else if(obj==bselect){
 			type = SELECT;
+		}else if(obj==linecolor){
+			line_color = linecolor.getSelectedIndex();
+		}else if(obj==drawcolor){
+			draw_color = drawcolor.getSelectedIndex();
 		}
 	}
 
@@ -308,7 +351,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 			x2List.clear();
 			y1List.clear();
 			y2List.clear();
-			addInfoList.clear();
+			drawColorList.clear();
+			lineColorList.clear();
 			// typeを0にすると次にボタンを押すまで図形が書けない
 			x1 = 0;
 			y1 = 0;
@@ -325,7 +369,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 				x2List.remove(b);
 				y1List.remove(b);
 				y2List.remove(b);
-				addInfoList.remove(b);
+				drawColorList.remove(b);
+				lineColorList.remove(b);
 			}
 			doCount = 0;
 		}
@@ -361,7 +406,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y1List.set(index,y1);
 				x2List.set(index,x2);
 				y2List.set(index,y2);
-				addInfoList.set(index,false);
+				drawColorList.set(index,draw_color);
+				lineColorList.set(index,line_color);
 				doCount--;
 			}else{
 				typeList.add(type);
@@ -369,11 +415,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y1List.add(y1);
 				x2List.add(x2);
 				y2List.add(y2);
-				//if(type!=LINE || type!=RECT || type!=OVAL){
-				//	addInfoList.add(true);
-				//}else if{
-				//}
-				addInfoList.add(false);
+				drawColorList.add(draw_color);
+				lineColorList.add(line_color);
 			}
 		}
 
@@ -394,7 +437,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		private void drawObject(){
 			g2.setColor(Color.white); //描画色を黒にする
 			g2.fillRect(0,0,600,600); //背景を白くするため描画色で四角を描く
-			g2.setColor(Color.black); //描画色を黒にする
 
 			if(antiAliasing == true){
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
@@ -405,32 +447,38 @@ class DrawGraphics extends JPanel implements ActionListener{
 			if(typeList.size() > 0){
 				for(int i = 0 ; i < typeList.size() - doCount ; i++){
 					if(typeList.get(i) == LINE){
+						g2.setColor(c[lineColorList.get(i)]);
 						g2.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 					}else if(typeList.get(i) == RECT){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+						g2.setColor(c[drawColorList.get(i)]);
 						g2.fillRect( w1, h1, w2, h2);
-						//g.setColor(c[line_color]);
+						g2.setColor(c[lineColorList.get(i)]);
 						g2.drawRect( w1, h1, w2, h2);
 					}else if(typeList.get(i) == OVAL){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+						g2.setColor(c[drawColorList.get(i)]);
 						g2.fillOval( w1, h1, w2, h2);
-						//g.setColor(c[line_color]);
+						g2.setColor(c[lineColorList.get(i)]);
 						g2.drawOval( w1, h1, w2, h2);
 					}
 				}
 			}
 
 			if(type == LINE){
+				g2.setColor(c[line_color]);
 				g2.drawLine(x1,y1,x2,y2);
 			}else if(type == RECT){
 				exchange(x1,y1,x2,y2);
+				g2.setColor(c[draw_color]);
 				g2.fillRect( w1, h1, w2, h2);
-				//g.setColor(c[line_color]);
+				g2.setColor(c[line_color]);
 				g2.drawRect( w1, h1, w2, h2);
 			}else if(type == OVAL){
 				exchange(x1,y1,x2,y2);
+				g2.setColor(c[draw_color]);
 				g2.fillOval( w1, h1, w2, h2);
-				//g.setColor(c[line_color]);
+				g2.setColor(c[line_color]);
 				g2.drawOval( w1, h1, w2, h2);
 			}
 		}
@@ -449,10 +497,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 		}
 
-
 		public int gridPosition(int a){	//位置を補正.(グリッド線)
 			int b;
-			for(int i=1;i<12;i++){
+			for(int i=0;i<=12;i++){
 				b = i*50;
 				if(Math.abs(b-a) < 8){				//グリッド線との距離が10より小さかったら.
 					a = i*50;

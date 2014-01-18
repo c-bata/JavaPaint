@@ -30,7 +30,7 @@ public class JavaPaint extends JFrame implements ActionListener{
 		JMenu submenu1 = new JMenu("画像の形式を変更");
 		JRadioButtonMenuItem radiomenuitem1 = new JRadioButtonMenuItem("PNG");
 		JRadioButtonMenuItem radiomenuitem2 = new JRadioButtonMenuItem("GIF");
-		JRadioButtonMenuItem radiomenuitem3 = new JRadioButtonMenuItem("JPEG");
+		JRadioButtonMenuItem radiomenuitem3 = new JRadioButtonMenuItem("JPG");
 		submenu1.add(radiomenuitem1);
 		submenu1.add(radiomenuitem2);
 		submenu1.add(radiomenuitem3);
@@ -94,6 +94,9 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menuitem2_2.addActionListener(this);
 		menuitem2_3.addActionListener(this);
 		menuitem2_4.addActionListener(this);
+		radiomenuitem1.addActionListener(this);
+		radiomenuitem2.addActionListener(this);
+		radiomenuitem3.addActionListener(this);
 
 		menuitem1_1.setActionCommand("newFile");
 		menuitem1_2.setActionCommand("dataOpen");
@@ -105,6 +108,9 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menuitem2_2.setActionCommand("reDo");
 		menuitem2_3.setActionCommand("antiAliasing");
 		menuitem2_4.setActionCommand("setGrid");
+		radiomenuitem1.setActionCommand("PNG");
+		radiomenuitem2.setActionCommand("GIF");
+		radiomenuitem3.setActionCommand("JPG");
 
 		frame.setJMenuBar(menubar);
 
@@ -155,10 +161,17 @@ public class JavaPaint extends JFrame implements ActionListener{
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 		}else if(actionCommand.equals("save")){
-			//ここはFileChooserDialogいらない
 			graphics.save();
 
 
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+		}else if(actionCommand.equals("PNG")){
+			graphics.imageOp(1);
+		}else if(actionCommand.equals("GIF")){
+			graphics.imageOp(2);
+		}else if(actionCommand.equals("JPG")){
+			graphics.imageOp(3);
 
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////

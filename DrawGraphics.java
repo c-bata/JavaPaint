@@ -15,7 +15,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 	final int RECT = 1, OVAL = 2, LINE=3, POLYGON=4, POLYLINE=5, SELECT=6, TEXT=7, PENCIL=8;
 	int type = RECT;
 
-	int doCount = 0;
 
 	ArrayList<Integer> typeList = new ArrayList<Integer>();
 	ArrayList<Integer> x1List = new ArrayList<Integer>();
@@ -171,7 +170,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText(file.getName() + "にセーブしました.");
 
 
-			for(int i=0; i < typeList.size() - doCount ; i++){
+			for(int i=0; i < typeList.size() - mouse.doCount ; i++){
 				bw.write(typeList.get(i) + ",");
 				bw.write(x1List.get(i) + ",");
 				bw.write(y1List.get(i) + ",");
@@ -212,8 +211,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void unDo(){
-		if(doCount < typeList.size()){
-			doCount++;
+		if(mouse.doCount < typeList.size()){
+			mouse.doCount++;
 			mouse.repaint();
 			info.setText("undo!");
 			mouse.x1 = 0;
@@ -228,8 +227,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void reDo(){
-		if(doCount > 0){
-			doCount--;
+		if(mouse.doCount > 0){
+			mouse.doCount--;
 			mouse.repaint();
 			info.setText("redo!");
 			mouse.x1 = 0;
@@ -239,7 +238,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		}else{
 			info.setText("can't redo!");
 		}
-
 	}
 
 //////////////////////////////////////////////////////////////////////
@@ -269,9 +267,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void actionPerformed(ActionEvent e) {
-
 		//String actionCommand = e.getActionCommand();
-
 		Object obj=e.getSource();
 		if(obj==brect){
 			type = RECT;
@@ -302,6 +298,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		Graphics2D g2;  //Graphicsコンテキスト
 		boolean antiAliasing = true, setGrid = true;
 
+		int doCount = 0;
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 		//各リストを初期化
@@ -317,7 +314,19 @@ class DrawGraphics extends JPanel implements ActionListener{
 			y1 = 0;
 			x2 = 0;
 			y2 = 0;
-			// doCountをreset
+			doCount = 0;
+		}
+
+		private void undoReset(){
+			int a = typeList.size() ,b=typeList.size() - doCount;
+			for(int i=b;i<a;i++){
+				typeList.remove(b);
+				x1List.remove(b);
+				x2List.remove(b);
+				y1List.remove(b);
+				y2List.remove(b);
+				addInfoList.remove(b);
+			}
 			doCount = 0;
 		}
 
@@ -353,6 +362,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				x2List.set(index,x2);
 				y2List.set(index,y2);
 				addInfoList.set(index,false);
+				doCount--;
 			}else{
 				typeList.add(type);
 				x1List.add(x1);
@@ -369,9 +379,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 		protected void paintComponent(Graphics g){    //paintComponentメソッドを再定義
 			super.paintComponent(g);	//superクラスのpaintComponentの実行
-
 			drawObject();
-
 			//g.drawImage(bi, 0, 0, this);
 			g.drawImage(bi, 0, 0, 600, 600, this); //コンストラクタは結構種類ある(P.144)
 
@@ -457,6 +465,12 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 		public void mousePressed(MouseEvent e){
+
+			if(doCount > 0){
+				undoReset();
+			}
+
+
 			if(setGrid == true){
 				x1 = gridPosition(e.getX());
 				y1 = gridPosition(e.getY());
@@ -468,6 +482,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 			y2 = y1;
 		}
 		public void mouseDragged(MouseEvent e){ 
+			if(doCount > 0){
+				undoReset();
+			}
+
 			if(setGrid == true){
 				x2 = gridPosition(e.getX());
 				y2 = gridPosition(e.getY());

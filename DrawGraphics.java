@@ -36,6 +36,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	JSlider lineSlider;
 
+	File presentFile = null; //現在編集中のファイルを保持
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	//引数なしのコンストラクタ
@@ -138,6 +139,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		mouse.initList();
 		mouse.repaint();
 		info.setText("新しい画像を生成しました.");
+		presentFile = null;
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -163,6 +165,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 		int selected = filechooser.showOpenDialog(this);
 		if (selected == JFileChooser.APPROVE_OPTION){
 			File file = filechooser.getSelectedFile();
+
+			presentFile = file;
 
 			//System.out.println(file.getName());
 
@@ -210,6 +214,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 			info.setText(file.getName() + "にセーブしました.");
 
+			presentFile = file;
 
 			for(int i=0; i < typeList.size() - mouse.doCount ; i++){
 				bw.write(typeList.get(i) + ",");
@@ -233,8 +238,36 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void save(){
-		System.out.println("Saving Data ....");
-		info.setText("データを上書き保存しました.");
+		if(presentFile != null){
+			try{
+				if (presentFile.exists() == false){
+					System.out.println("ファイルが見つかりません.");
+					return;
+				}
+
+				BufferedWriter bw = new BufferedWriter(new FileWriter(presentFile));
+				info.setText( presentFile.getName() + "に上書き保存しました.");
+
+				for(int i=0; i < typeList.size() - mouse.doCount ; i++){
+					bw.write(typeList.get(i) + ",");
+					bw.write(x1List.get(i) + ",");
+					bw.write(y1List.get(i) + ",");
+					bw.write(x2List.get(i) + ",");
+					bw.write(y2List.get(i) + ",");
+					bw.write(drawColorList.get(i) + ",");
+					bw.write(lineColorList.get(i) + ",");
+					bw.write(lineWidthList.get(i) + ",");
+					bw.newLine();
+				}
+				bw.close();
+
+			}catch(IOException e){
+				System.out.println(e);
+				info.setText("ファイルが開けません");
+			}
+		}else{
+			info.setText("上書きできません.一度保存して下さい.");
+		}
 	}
 
 //////////////////////////////////////////////////////////////////////
@@ -358,6 +391,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		boolean antiAliasing = true, setGrid = true;
 
 		int doCount = 0;
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 		//各リストを初期化

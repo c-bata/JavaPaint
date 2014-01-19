@@ -18,9 +18,7 @@ Java+Swingでお絵かきソフト
 	- メニューアイテムにキーボードアクセラレーターの設定
 - ファイル選択ダイアログの実装
 - ファイルチューザーダイアログのフィルタ設定
-
 - グリッド線に沿った補正機能
-
 - スライダーによる線の太さの指定
 	- スライダーには,目盛りをつけている.
 
@@ -33,12 +31,8 @@ Java+Swingでお絵かきソフト
 
 1. カラーパレット
 1. Textはフォントと色，サイズを変えられる
-1. フローチャートとか電気回路書ける
 1. 画像ファイルの読み込み
-1. 線の太さを変えられる
 1. 拡大,縮小,回転
-1. 複数の図形を書けるようにする
-1. PNG,JPG,GIFで保存
 1. File選択ダイアログの実装
 1. 保存せずに終了したら，保存するか確認する。
 
@@ -50,9 +44,7 @@ Java+Swingでお絵かきソフト
 	- [メニューの作成](http://www.javadrive.jp/tutorial/jmenu/)
 	- [JFileChooserクラス](http://www.javadrive.jp/tutorial/jfilechooser/)
     - [文字描画に対するアンチエイリアス処理](http://www.javadrive.jp/java2d/graphics2d/index4.html)
-
 - [Swing](http://www.tohoho-web.com/java/swing.htm#JPopupMenu)
-
 - [JMenuBar（Swing）](http://www.ne.jp/asahi/hishidama/home/tech/java/swing/JMenuBar.html)
 
 

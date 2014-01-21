@@ -54,12 +54,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	File presentFile = null; //現在編集中のファイルを保持
 
-	String textString = null; //Text挿入で挿入する文字列
+	String textString = null, fileString = null; //Text挿入で挿入する文字列
 
 	public DrawGraphics(){
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
 		brect     = new JButton("", new ImageIcon("./img/rect.png"));
 		boval     = new JButton("", new ImageIcon("./img/oval.png"));
 		bline     = new JButton("", new ImageIcon("./img/line.png"));
@@ -298,9 +296,12 @@ class DrawGraphics extends JPanel implements ActionListener{
 					BufferedReader br = new BufferedReader(new FileReader(file));
 					info.setText(file.getName() + "を読み込みました.");
 
+					String[] element = br.readLine().split(",", -1);
+					back_color = Integer.parseInt(element[0]);				//1行目は背景
+
 					String str;
 					while((str = br.readLine()) != null){
-						String[] element = str.split(",", -1);
+						element = str.split(",", -1);
 						typeList.add(Integer.parseInt(element[0]));
 						x1List.add(Integer.parseInt(element[1]));
 						y1List.add(Integer.parseInt(element[2]));
@@ -331,14 +332,14 @@ class DrawGraphics extends JPanel implements ActionListener{
 		try{
 			if (file.exists() == false){
 				file.createNewFile();
-				System.out.println("ファイルがないので作ります");
+				info.setText("ファイルがないので作ります");
 			}
 
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-			info.setText(file.getName() + "にセーブしました.");
-
 			presentFile = file;
 
+			bw.write(back_color + ",");
+			bw.newLine();
 			for(int i=0; i < typeList.size() - mouse.doCount ; i++){
 				bw.write(typeList.get(i) + ",");
 				bw.write(x1List.get(i) + ",");
@@ -353,6 +354,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				bw.newLine();
 			}
 			bw.close();
+			info.setText(file.getName() + "にセーブしました.");
 
 		}catch(IOException e){
 			System.out.println(e);
@@ -369,8 +371,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 				}
 
 				BufferedWriter bw = new BufferedWriter(new FileWriter(presentFile));
-				info.setText( presentFile.getName() + "に上書き保存しました.");
-
+				bw.write(back_color + ",");
+				bw.newLine();
 				for(int i=0; i < typeList.size() - mouse.doCount ; i++){
 					bw.write(typeList.get(i) + ",");
 					bw.write(x1List.get(i) + ",");
@@ -385,6 +387,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 					bw.newLine();
 				}
 				bw.close();
+				info.setText( presentFile.getName() + "に上書き保存しました.");
 
 			}catch(IOException e){
 				System.out.println(e);
@@ -499,7 +502,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			if (selected == JFileChooser.APPROVE_OPTION){
 				File file = filechooser.getSelectedFile();
 				info.setText(file.getName());
-				mouse.openImage(file);
+				fileString = new String(file.getPath().toString());
 				mouse.repaint();
 			}else if (selected == JFileChooser.CANCEL_OPTION){
 				System.out.println("キャンセルされました");
@@ -702,8 +705,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 		int doCount = 0;
 
-		BufferedImage readImage = null;
-
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 		//各リストを初期化
@@ -725,6 +726,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 			y2 = 0;
 			doCount = 0;
 			textString = null;
+			fileString = null;
+			back_color = 11;
 		}
 
 		private void undoReset(){
@@ -779,8 +782,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 				lineColorList.set(index,line_color);
 				clearColorList.set(index,clear_color);
 				lineWidthList.set(index,lineWidth);
-				if(textString == null){ textString = new String("???");}	//もしnullまら???を入れる
-				textStringList.set(index,textString);	// textの時でも,addしないとインデックスがずれる.
+				if(type == IMAGE){
+					textStringList.set(index, fileString);	// textの時でも,addしないとインデックスがずれる.
+				}else{
+					textStringList.set(index,textString);	// textの時でも,addしないとインデックスがずれる.
+				}
 				doCount--;
 			}else{
 				typeList.add(type);
@@ -792,7 +798,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 				lineColorList.add(line_color);
 				clearColorList.add(clear_color);
 				lineWidthList.add(lineWidth);
-				textStringList.add(textString);	// textの時でも,addしないとインデックスがずれる.
+				if(type == IMAGE){
+					textStringList.add(fileString);	// textの時でも,addしないとインデックスがずれる.
+				}else{
+					textStringList.add(textString);	// textの時でも,addしないとインデックスがずれる.
+				}
 			}
 		}
 
@@ -815,11 +825,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			//背景
 			g2.setBackground(c[back_color]);
 			g2.clearRect(0, 0, getWidth(), getHeight());
-
-			// 画像
-			if (readImage != null){
-				g2.drawImage(readImage, 0, 0, this);
-			}
 
 			////////////////////////////////////////////////////
 
@@ -872,6 +877,12 @@ class DrawGraphics extends JPanel implements ActionListener{
 								System.out.println(textString+ ","+textStringList.get(i));
 							}
 						}
+					}else if(typeList.get(i) == IMAGE){
+						try{
+							g2.drawImage(openImage(new File(textStringList.get(i))), x1List.get(i), y1List.get(i), this);
+						}catch(NullPointerException e){
+							info.setText("エラー発生");
+						}
 					}
 				}
 			}
@@ -908,10 +919,13 @@ class DrawGraphics extends JPanel implements ActionListener{
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawString(textString, x, y);
 				}
+			}else if(type == IMAGE){
+				if (fileString != null){
+					g2.drawImage(openImage(new File(fileString)), x, y, this);
+				}
 			}
 		}
 
-//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 		private void drawGrid(Graphics g){
 			for(int i=1;i<12;i++){
@@ -937,16 +951,17 @@ class DrawGraphics extends JPanel implements ActionListener{
 			return a;
 		}
 
-		public void openImage(File file){
+		public BufferedImage openImage(File file){
+			BufferedImage buffImage = null;
 			try {
-				readImage = ImageIO.read(file);
+				buffImage = ImageIO.read(file);
 			} catch (Exception e) {
 				e.printStackTrace();
-				readImage = null;
+				buffImage = null;
 			}
+			return buffImage;
 		}
 
-//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 		public void mousePressed(MouseEvent e){
 			if(doCount > 0){
@@ -987,9 +1002,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y = e.getY();
 			}
 			position.setText("(" + Integer.toString(x) + "," + Integer.toString(y) + ")");
-			if(textString != null){
+
+			if(textString != null || fileString != null){
 				repaint();     //コンポーネント全体を再描画
 			}
+
 		}
 		public void mouseReleased(MouseEvent e){
 			if(type != -1){
@@ -998,7 +1015,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			repaint();
 		}
 		public void mouseClicked(MouseEvent e){
-			if(textString != null){
+			if(type == TEXT && textString != null){
 				if(setGrid == true){
 					x1 = gridPosition(e.getX());
 					y1 = gridPosition(e.getY());
@@ -1008,6 +1025,18 @@ class DrawGraphics extends JPanel implements ActionListener{
 				}
 				//listAdd();
 				textString = null;
+				type = -1; x1 = 0; y1 = 0;
+				buttonRaised();
+			}else if(type == IMAGE && fileString != null){
+				if(setGrid == true){
+					x1 = gridPosition(e.getX());
+					y1 = gridPosition(e.getY());
+				}else{
+					x1 = e.getX();
+					y1 = e.getY();
+				}
+				//listAdd();
+				fileString = null;
 				type = -1; x1 = 0; y1 = 0;
 				buttonRaised();
 			}

@@ -15,8 +15,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 	DrawByMouse mouse;
 	BufferedImage bi = null;
 
-	JButton brect, bline, boval, bpolygon, bpolyline, bselect, btext, bpencil;
-	final int RECT = 1, OVAL = 2, LINE=3, POLYGON=4, POLYLINE=5, SELECT=6, TEXT=7, PENCIL=8;
+	JButton brect, bline, boval, broundrect, bpolyline, bselect, btext, bimage;
+	final int RECT = 1, OVAL = 2, LINE=3, ROUNDRECT=4, POLYLINE=5, SELECT=6, TEXT=7, IMAGE=8;
 	int type = RECT;
 
 	final int PNG=1, GIF=2, JPG=3;
@@ -29,7 +29,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	ArrayList<Integer> y2List        = new ArrayList<Integer>();
 	ArrayList<Integer> drawColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineColorList = new ArrayList<Integer>();
-	ArrayList<Integer> clearColorList = new ArrayList<Integer>();
+	ArrayList<Integer> clearColorList= new ArrayList<Integer>();
 	ArrayList<Integer> lineWidthList = new ArrayList<Integer>();
 	ArrayList<String> textStringList = new ArrayList<String>();
 
@@ -39,9 +39,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 	int line_color = 0,draw_color = 13, back_color = 11;
 
 	//各カラーのRGBを記憶
-	int [] red = {0, 0, 0, 64, 128, 0, 192, 255, 255, 255, 255, 255, 255};
+	int [] red   = {0, 0, 0, 64, 128, 0, 192, 255, 255, 255, 255, 255, 255};
 	int [] green = {0, 0, 255, 64, 128,255,192,0,200,175,0,255,255};
-	int [] blue = {0, 255,255,64,128,0,192,255,0,175,0,255,0};
+	int [] blue  = {0, 255,255,64,128,0,192,255,0,175,0,255,0};
 	
 	JButton undoButton,redoButton;
 
@@ -63,11 +63,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 		brect     = new JButton("", new ImageIcon("./img/rect.png"));
 		boval     = new JButton("", new ImageIcon("./img/oval.png"));
 		bline     = new JButton("", new ImageIcon("./img/line.png"));
-		bpolygon  = new JButton("", new ImageIcon("./img/polygon.png"));
+		broundrect  = new JButton("", new ImageIcon("./img/roundrect.png"));
 		bpolyline = new JButton("", new ImageIcon("./img/polyline.png"));
 		bselect   = new JButton("", new ImageIcon("./img/select.png"));
 		btext     = new JButton("", new ImageIcon("./img/text.png"));
-		bpencil   = new JButton("", new ImageIcon("./img/pencil.png"));
+		bimage   = new JButton("", new ImageIcon("./img/image.png"));
 		//枠線の追加
 		buttonRaised();
 		brect.setBorder(raiseborder);
@@ -75,11 +75,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 		brect.addActionListener(this);
 		boval.addActionListener(this);
 		bline.addActionListener(this);
-		bpolygon.addActionListener(this);
+		broundrect.addActionListener(this);
 		bpolyline.addActionListener(this);
 		bselect.addActionListener(this);
 		btext.addActionListener(this);
-		bpencil.addActionListener(this);
+		bimage.addActionListener(this);
 		//ボタンを置くパネルを作り，ボタンを配置
 		JPanel object = new JPanel();
 		object.setBorder(new EmptyBorder( 0, 20, 20, 20));
@@ -87,11 +87,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 		object.add(brect);
 		object.add(boval);
 		object.add(bline);
-		object.add(bpolygon);
+		object.add(broundrect);
 		object.add(bpolyline);
 		object.add(bselect);
 		object.add(btext);
-		object.add(bpencil);
+		object.add(bimage);
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		bclear.setBorder(colorborder);
 		JPanel colorButtons = new JPanel();
 		colorButtons.setLayout(new GridLayout(3,5));
-		colorButtons.setBorder(new EmptyBorder( 20, 20, 20, 20));
+		colorButtons.setBorder(new EmptyBorder( 5, 20, 20, 20));
 
 		LineBorder inborder1 = new LineBorder(Color.lightGray, 1);
 		TitledBorder border1 = new TitledBorder(inborder1, "カラーパレット", TitledBorder.CENTER, TitledBorder.TOP);
@@ -236,11 +236,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 		sidepanel.add(dopanel);
 		sidepanel.add(object);
 		sidepanel.add(new JSeparator());
-		sidepanel.add(lineSlider);
-		sidepanel.add(clearSlider);
 		sidepanel.add(color);
 		sidepanel.add(colorButtons);
 		sidepanel.add(new JSeparator());
+		sidepanel.add(lineSlider);
+		sidepanel.add(clearSlider);
 
 		setLayout(new BorderLayout());
 		mouse = new DrawByMouse();
@@ -254,11 +254,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 		brect.setBorder(borderRaised);
 		boval.setBorder(borderRaised);
 		bline.setBorder(borderRaised);
-		bpolygon.setBorder(borderRaised);
+		broundrect.setBorder(borderRaised);
 		bpolyline.setBorder(borderRaised);
 		bselect.setBorder(borderRaised);
 		btext.setBorder(borderRaised);
-		bpencil.setBorder(borderRaised);
+		bimage.setBorder(borderRaised);
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -484,14 +484,31 @@ class DrawGraphics extends JPanel implements ActionListener{
 			buttonRaised();
 			bpolyline.setBorder(raiseborder);
 			type = POLYLINE;
-		}else if(obj==bpolygon){
+		}else if(obj==broundrect){
 			buttonRaised();
-			bpolygon.setBorder(raiseborder);
-			type = POLYGON;
-		}else if(obj==bpencil){
+			broundrect.setBorder(raiseborder);
+			type = ROUNDRECT;
+		}else if(obj==bimage){
 			buttonRaised();
-			bpencil.setBorder(raiseborder);
-			type = PENCIL;
+			bimage.setBorder(raiseborder);
+
+			JFileChooser filechooser = new JFileChooser();
+			filechooser.setDialogTitle("画像を選択"); // titleを変更
+			int selected = filechooser.showSaveDialog(this);
+
+			if (selected == JFileChooser.APPROVE_OPTION){
+				File file = filechooser.getSelectedFile();
+				info.setText(file.getName());
+				mouse.openImage(file);
+				mouse.repaint();
+			}else if (selected == JFileChooser.CANCEL_OPTION){
+				System.out.println("キャンセルされました");
+			}else if (selected == JFileChooser.ERROR_OPTION){
+				System.out.println("エラー又は取消しがありました");
+			}
+
+
+			type = IMAGE;
 		}else if(obj==btext){
 			buttonRaised();
 			btext.setBorder(raiseborder);
@@ -685,6 +702,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 		int doCount = 0;
 
+		BufferedImage readImage = null;
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 		//各リストを初期化
@@ -797,17 +816,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 			g2.setBackground(c[back_color]);
 			g2.clearRect(0, 0, getWidth(), getHeight());
 
-			//BufferedImage readImage = null;
-			//try {
-			//	readImage = ImageIO.read(new File("sample.png"));
-			//} catch (Exception e) {
-			//	e.printStackTrace();
-			//	readImage = null;
-			//}
-
-			//if (readImage != null){
-			//	g2.drawImage(readImage, 0, 0, this);
-			//}
+			// 画像
+			if (readImage != null){
+				g2.drawImage(readImage, 0, 0, this);
+			}
 
 			////////////////////////////////////////////////////
 
@@ -925,6 +937,15 @@ class DrawGraphics extends JPanel implements ActionListener{
 			return a;
 		}
 
+		public void openImage(File file){
+			try {
+				readImage = ImageIO.read(file);
+			} catch (Exception e) {
+				e.printStackTrace();
+				readImage = null;
+			}
+		}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 		public void mousePressed(MouseEvent e){
@@ -1034,4 +1055,5 @@ class DrawGraphics extends JPanel implements ActionListener{
 			setVisible(false);
 		}
 	}
+
 }

@@ -5,6 +5,10 @@ import java.io.*;
 import java.util.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import javax.swing.border.*;
+import java.awt.Insets;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 
 class DrawGraphics extends JPanel implements ActionListener{
 
@@ -18,37 +22,45 @@ class DrawGraphics extends JPanel implements ActionListener{
 	final int PNG=1, GIF=2, JPG=3;
 	int imageType = PNG;
 
-	ArrayList<Integer> typeList = new ArrayList<Integer>();
-	ArrayList<Integer> x1List = new ArrayList<Integer>();
-	ArrayList<Integer> x2List = new ArrayList<Integer>();
-	ArrayList<Integer> y1List = new ArrayList<Integer>();
-	ArrayList<Integer> y2List = new ArrayList<Integer>();
+	ArrayList<Integer> typeList      = new ArrayList<Integer>();
+	ArrayList<Integer> x1List        = new ArrayList<Integer>();
+	ArrayList<Integer> x2List        = new ArrayList<Integer>();
+	ArrayList<Integer> y1List        = new ArrayList<Integer>();
+	ArrayList<Integer> y2List        = new ArrayList<Integer>();
 	ArrayList<Integer> drawColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineWidthList = new ArrayList<Integer>();
 
 	JLabel position,info;
 
-	JComboBox linecolor,drawcolor; // 線の色,塗りつぶしの色
-	Color [] c = {Color.black, Color.red, Color.yellow, Color.green, Color.blue, Color.white};
-	int line_color = 0;
-	int draw_color = 0;
+	Color [] c = {Color.black, Color.blue, Color.cyan, Color.darkGray, Color.gray, Color.green, Color.lightGray, Color.magenta, Color.orange, Color.pink, Color.red, Color.white, Color.yellow};
+	int line_color = 0,draw_color = 13, back_color = 11;
 
+	JButton undoButton,redoButton;
+
+	BevelBorder raiseborder = new BevelBorder(BevelBorder.LOWERED);
+	JButton bblack, bblue, bcyan, bdarkGray, bgray, bgreen, blightGray, bmagenta, borange, bpink, bred, bwhite, byellow, bclear;
+	String [] list = {"黒","青","シアン","ダークグレー","グレー","緑","ライトグレー","マゼンタ","オレンジ","ピンク","赤","白","黃","なし"};
+	JRadioButton lineRadio, drawRadio, backRadio;
+	JLabel lineLabel, drawLabel, backLabel;
 	JSlider lineSlider;
 
 	File presentFile = null; //現在編集中のファイルを保持
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-	//引数なしのコンストラクタ
 	public DrawGraphics(){
-		brect = new JButton("", new ImageIcon("./img/rect.png"));
-		boval = new JButton("", new ImageIcon("./img/oval.png"));
-		bline = new JButton("", new ImageIcon("./img/line.png"));
-		bpolygon = new JButton("", new ImageIcon("./img/polygon.png"));
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+		brect     = new JButton("", new ImageIcon("./img/rect.png"));
+		boval     = new JButton("", new ImageIcon("./img/oval.png"));
+		bline     = new JButton("", new ImageIcon("./img/line.png"));
+		bpolygon  = new JButton("", new ImageIcon("./img/polygon.png"));
 		bpolyline = new JButton("", new ImageIcon("./img/polyline.png"));
-		bselect = new JButton("", new ImageIcon("./img/select.png"));
-		btext = new JButton("", new ImageIcon("./img/text.png"));
-		bpencil = new JButton("", new ImageIcon("./img/pencil.png"));
+		bselect   = new JButton("", new ImageIcon("./img/select.png"));
+		btext     = new JButton("", new ImageIcon("./img/text.png"));
+		bpencil   = new JButton("", new ImageIcon("./img/pencil.png"));
+		//枠線の追加
+		buttonRaised();
+		brect.setBorder(raiseborder);
 		//ActionListenerの設定
 		brect.addActionListener(this);
 		boval.addActionListener(this);
@@ -60,6 +72,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		bpencil.addActionListener(this);
 		//ボタンを置くパネルを作り，ボタンを配置
 		JPanel object = new JPanel();
+		object.setBorder(new EmptyBorder( 0, 20, 20, 20));
 		object.setLayout(new GridLayout(2,2));
 		object.add(brect);
 		object.add(boval);
@@ -70,55 +83,145 @@ class DrawGraphics extends JPanel implements ActionListener{
 		object.add(btext);
 		object.add(bpencil);
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+		bblack      = new JButton("", new ImageIcon("./img/black.png"));
+		bblue       = new JButton("", new ImageIcon("./img/blue.png"));
+		bcyan       = new JButton("", new ImageIcon("./img/cyan.png"));
+		bdarkGray   = new JButton("", new ImageIcon("./img/darkGray.png"));
+		bgray       = new JButton("", new ImageIcon("./img/gray.png"));
+		bgreen      = new JButton("", new ImageIcon("./img/green.png"));
+		blightGray  = new JButton("", new ImageIcon("./img/lightGray.png"));
+		bmagenta    = new JButton("", new ImageIcon("./img/magenta.png"));
+		borange     = new JButton("", new ImageIcon("./img/orange.png"));
+		bpink       = new JButton("", new ImageIcon("./img/pink.png"));
+		bred        = new JButton("", new ImageIcon("./img/red.png"));
+		bwhite      = new JButton("", new ImageIcon("./img/white.png"));
+		byellow     = new JButton("", new ImageIcon("./img/yellow.png"));
+		bclear      = new JButton("", new ImageIcon("./img/clear.png"));
+
+		bblack.addActionListener(this);
+		bblue.addActionListener(this);
+		bcyan.addActionListener(this);
+		bdarkGray.addActionListener(this);
+		bgray.addActionListener(this);
+		bgreen.addActionListener(this);      
+		blightGray.addActionListener(this);
+		bmagenta.addActionListener(this);
+		borange.addActionListener(this);
+		bpink.addActionListener(this);
+		bred.addActionListener(this);
+		bwhite.addActionListener(this);
+		byellow.addActionListener(this);
+		bclear.addActionListener(this);
+
+		Border colorborder = new EmptyBorder( 1, 1, 1, 1);
+		bblack.setBorder(colorborder);
+		bblue.setBorder(colorborder);
+		bcyan.setBorder(colorborder);
+		bdarkGray.setBorder(colorborder);
+		bgray.setBorder(colorborder);
+		bgreen.setBorder(colorborder);
+		blightGray.setBorder(colorborder);
+		bmagenta.setBorder(colorborder);
+		borange.setBorder(colorborder);
+		bpink.setBorder(colorborder);
+		bred.setBorder(colorborder);
+		bwhite.setBorder(colorborder);
+		byellow.setBorder(colorborder);
+		bclear.setBorder(colorborder);
+		JPanel colorButtons = new JPanel();
+		colorButtons.setLayout(new GridLayout(3,5));
+		colorButtons.setBorder(new EmptyBorder( 20, 20, 20, 20));
+
+		LineBorder inborder1 = new LineBorder(Color.gray, 1);
+		TitledBorder border1 = new TitledBorder(inborder1, "カラーパレット", TitledBorder.CENTER, TitledBorder.TOP);
+		//colorButtons.setPreferredSize(new Dimension(100,100));
+		colorButtons.setBorder(border1);
+
+		colorButtons.add(bblack);
+		colorButtons.add(bwhite);
+		colorButtons.add(bdarkGray);
+		colorButtons.add(bgray);
+		colorButtons.add(blightGray);
+		colorButtons.add(bblue);
+		colorButtons.add(bcyan);
+		colorButtons.add(bgreen);
+		colorButtons.add(bmagenta);
+		colorButtons.add(borange);
+		colorButtons.add(bpink);
+		colorButtons.add(bred);
+		colorButtons.add(byellow);
+		colorButtons.add(bclear);
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 		JPanel footer = new JPanel();
+		FlowLayout footerlayout = new FlowLayout();	//左詰め
+		footerlayout.setAlignment(FlowLayout.LEFT);
+		footer.setLayout(footerlayout);
 		position = new JLabel("(none,none)");
+
 		info = new JLabel("");
+		//info.setForeground(Color.white);
+		//info.setBackground(Color.black); //Macのルック&フィールでは適用されない
 		footer.add(position);
 		footer.add(info);
 
 		// 色の選択
-		String [] list = {"黒","赤","黃","緑","青","なし"};
-		linecolor = new JComboBox(list);
-		linecolor.addActionListener(this);
-		linecolor.setSelectedIndex(line_color); // 初期化
-		drawcolor = new JComboBox(list);
-		drawcolor.addActionListener(this);
-		linecolor.setSelectedIndex(draw_color); // 初期化
-
 		JPanel color = new JPanel();
-		color.setLayout(new GridLayout(2,2));
-		color.add(new JLabel("線の色"));
-		color.add(linecolor);
-		color.add(new JLabel("塗りつぶしの色"));
-		color.add(drawcolor);
+		color.setBorder(new EmptyBorder( 20, 20, 20, 20));
+		color.setLayout(new GridLayout(3,2));
+		lineRadio = new JRadioButton("線の色");
+		drawRadio = new JRadioButton("塗りつぶし");
+		backRadio = new JRadioButton("背景色");
+		lineRadio.setSelected(true);
+		drawRadio.setSelected(false);
+		backRadio.setSelected(false);
+		ButtonGroup group = new ButtonGroup();
+		group.add(lineRadio);
+		group.add(drawRadio);
+		group.add(backRadio);
+
+		color.add(lineRadio);
+		lineLabel = new JLabel(list[line_color]);
+		drawLabel = new JLabel(list[draw_color]);
+		backLabel = new JLabel(list[back_color]);
+		color.add(lineLabel);
+		color.add(drawRadio);
+		color.add(drawLabel);
+		color.add(backRadio);
+		color.add(backLabel);
+
+
+		//undo,redo
+		JPanel dopanel = new JPanel();
+		undoButton     = new JButton("元に戻す", new ImageIcon("./img/undo1.png"));
+		redoButton     = new JButton("やり直し", new ImageIcon("./img/redo1.png"));
+		undoButton.addActionListener(this);
+		redoButton.addActionListener(this);
+		//redoButton.setBorder(border);
+		dopanel.add(undoButton);
+		dopanel.add(redoButton);
 
 		// スライダー
-		JPanel linewidth = new JPanel();
 		lineSlider = new JSlider();
+		TitledBorder border2 = new TitledBorder(inborder1, "線の太さ", TitledBorder.CENTER, TitledBorder.TOP);
+		lineSlider.setBorder(border2);
 		lineSlider.setMajorTickSpacing(10);
 		lineSlider.setMinorTickSpacing(1);
 		lineSlider.setPaintTicks(true);
-		linewidth.add(new JLabel("線の太さ"));
-		linewidth.add(lineSlider);
 
 		JPanel sidepanel = new JPanel();
+		sidepanel.setBorder(new EmptyBorder( 5, 20, 5, 20));
 		sidepanel.setLayout(new BoxLayout(sidepanel, BoxLayout.Y_AXIS));
+		sidepanel.add(dopanel);
 		sidepanel.add(object);
+		sidepanel.add(new JSeparator());
+		sidepanel.add(lineSlider);
 		sidepanel.add(color);
-		sidepanel.add(linewidth);
-
-
-		/* 構成
-		 *
-		 * sidepanel(JPanel)              : サイドバー(ボタンとかを配置)
-		 *              object(JPanel)  : 描画する図形を選択するボタンが配置
-		 *
-		 * footer(JPanel)               : フッター
-		 *              position(JLabel) : 現在のマウスカーソルの位置を表示
-		 * mouse(JPanel)                : 描画画面
-		 *
-		 *
-		 */
+		sidepanel.add(colorButtons);
+		sidepanel.add(new JSeparator());
 
 		setLayout(new BorderLayout());
 		mouse = new DrawByMouse();
@@ -127,6 +230,17 @@ class DrawGraphics extends JPanel implements ActionListener{
 		add(sidepanel, BorderLayout.EAST);
 	}
 
+	public void buttonRaised(){
+		BevelBorder borderRaised = new BevelBorder(BevelBorder.RAISED);
+		brect.setBorder(borderRaised);
+		boval.setBorder(borderRaised);
+		bline.setBorder(borderRaised);
+		bpolygon.setBorder(borderRaised);
+		bpolyline.setBorder(borderRaised);
+		bselect.setBorder(borderRaised);
+		btext.setBorder(borderRaised);
+		bpencil.setBorder(borderRaised);
+	}
 
 	//引数ありのコンストラクタ.newFileの時はこっちのオブジェクト生成する。
 	//public DrawGraphics(String str){
@@ -357,25 +471,211 @@ class DrawGraphics extends JPanel implements ActionListener{
 		//String actionCommand = e.getActionCommand();
 		Object obj=e.getSource();
 		if(obj==brect){
+			buttonRaised();
+			brect.setBorder(raiseborder);
 			type = RECT;
 		}else if(obj==boval){
+			buttonRaised();
+			boval.setBorder(raiseborder);
 			type = OVAL;
 		}else if(obj==bline){
+			buttonRaised();
+			bline.setBorder(raiseborder);
 			type = LINE;
 		}else if(obj==bpolyline){
+			buttonRaised();
+			bpolyline.setBorder(raiseborder);
 			type = POLYLINE;
 		}else if(obj==bpolygon){
+			buttonRaised();
+			bpolygon.setBorder(raiseborder);
 			type = POLYGON;
 		}else if(obj==bpencil){
+			buttonRaised();
+			bpencil.setBorder(raiseborder);
 			type = PENCIL;
 		}else if(obj==btext){
+			buttonRaised();
+			btext.setBorder(raiseborder);
 			type = TEXT;
 		}else if(obj==bselect){
+			buttonRaised();
+			bselect.setBorder(raiseborder);
 			type = SELECT;
-		}else if(obj==linecolor){
-			line_color = linecolor.getSelectedIndex();
-		}else if(obj==drawcolor){
-			draw_color = drawcolor.getSelectedIndex();
+//		}else if(obj==linecolor){
+//			line_color = linecolor.getSelectedIndex();
+//		}else if(obj==drawcolor){
+//			draw_color = drawcolor.getSelectedIndex();
+		}else if(obj==bblack){
+			if(lineRadio.isSelected() == true){
+				line_color = 0;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 0;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 0;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bblue){
+			if(lineRadio.isSelected() == true){
+				line_color = 1;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 1;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 1;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bcyan){
+			if(lineRadio.isSelected() == true){
+				line_color = 2;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 2;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 2;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bdarkGray){
+			if(lineRadio.isSelected() == true){
+				line_color = 3;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 3;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 3;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bgray){
+			if(lineRadio.isSelected() == true){
+				line_color = 4;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 4;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 4;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bgreen){
+			if(lineRadio.isSelected() == true){
+				line_color = 5;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 5;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 5;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==blightGray){
+			if(lineRadio.isSelected() == true){
+				line_color = 6;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 6;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 6;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bmagenta){
+			if(lineRadio.isSelected() == true){
+				line_color = 7;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 7;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 7;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==borange){
+			if(lineRadio.isSelected() == true){
+				line_color = 8;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 8;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 8;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bpink){
+			if(lineRadio.isSelected() == true){
+				line_color = 9;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 9;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 9;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bred){
+			if(lineRadio.isSelected() == true){
+				line_color = 10;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 10;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 10;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bwhite){
+			if(lineRadio.isSelected() == true){
+				line_color = 11;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 11;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 11;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==byellow){
+			if(lineRadio.isSelected() == true){
+				line_color = 12;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 12;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				back_color = 12;
+				backLabel.setText(list[back_color]);
+				mouse.repaint();
+			}
+		}else if(obj==bclear){
+			if(lineRadio.isSelected() == true){
+				line_color = 13;
+				lineLabel.setText(list[line_color]);
+			}else if(drawRadio.isSelected() == true){
+				draw_color = 13;
+				drawLabel.setText(list[draw_color]);
+			}else if(backRadio.isSelected() == true){
+				info.setText("背景にその色は設定できません");
+			}
+		}else if(obj==undoButton){
+			unDo();
+		}else if(obj==redoButton){
+			reDo();
 		}
 	}
 
@@ -489,8 +789,24 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 		private void drawObject(){
-			g2.setColor(Color.white); //描画色を黒にする
-			g2.fillRect(0,0,600,600); //背景を白くするため描画色で四角を描く
+
+			//背景
+			g2.setBackground(c[back_color]);
+			g2.clearRect(0, 0, getWidth(), getHeight());
+
+			//BufferedImage readImage = null;
+			//try {
+			//	readImage = ImageIO.read(new File("sample.png"));
+			//} catch (Exception e) {
+			//	e.printStackTrace();
+			//	readImage = null;
+			//}
+
+			//if (readImage != null){
+			//	g2.drawImage(readImage, 0, 0, this);
+			//}
+
+			////////////////////////////////////////////////////
 
 			lineWidth = lineSlider.getValue()/10;
 
@@ -504,41 +820,63 @@ class DrawGraphics extends JPanel implements ActionListener{
 				for(int i = 0 ; i < typeList.size() - doCount ; i++){
 					BasicStroke wideStroke = new BasicStroke((float)lineWidthList.get(i));	// 線の太さ
 					g2.setStroke(wideStroke);
-					g2.setColor(c[drawColorList.get(i)]);
 
 					if(typeList.get(i) == LINE){
-						g2.setColor(c[lineColorList.get(i)]);
-						g2.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+						if(lineColorList.get(i)!=13){
+							g2.setColor(c[lineColorList.get(i)]);
+							g2.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+						}
 					}else if(typeList.get(i) == RECT){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
-						g2.fillRect( w1, h1, w2, h2);
-						g2.setColor(c[lineColorList.get(i)]);
-						g2.drawRect( w1, h1, w2, h2);
+						if(drawColorList.get(i)!=13){
+							g2.setColor(c[drawColorList.get(i)]);
+							g2.fillRect( w1, h1, w2, h2);
+						}
+						if(lineColorList.get(i)!=13){
+							g2.setColor(c[lineColorList.get(i)]);
+							g2.drawRect( w1, h1, w2, h2);
+						}
 					}else if(typeList.get(i) == OVAL){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
-						g2.fillOval( w1, h1, w2, h2);
-						g2.setColor(c[lineColorList.get(i)]);
-						g2.drawOval( w1, h1, w2, h2);
+						if(drawColorList.get(i)!=13){
+							g2.setColor(c[drawColorList.get(i)]);
+							g2.fillOval( w1, h1, w2, h2);
+						}
+						if(lineColorList.get(i)!=13){
+							g2.setColor(c[lineColorList.get(i)]);
+							g2.drawOval( w1, h1, w2, h2);
+						}
 					}
 				}
 			}
 
 			BasicStroke wideStroke = new BasicStroke((float)lineWidth);	// 線の太さ
 			g2.setStroke(wideStroke);
-			g2.setColor(c[draw_color]);
 			if(type == LINE){
-				g2.setColor(c[line_color]);
-				g2.drawLine(x1,y1,x2,y2);
+				if(line_color!=13){
+					g2.setColor(c[line_color]);
+					g2.drawLine(x1,y1,x2,y2);
+				}
 			}else if(type == RECT){
 				exchange(x1,y1,x2,y2);
-				g2.fillRect( w1, h1, w2, h2);
-				g2.setColor(c[line_color]);
-				g2.drawRect( w1, h1, w2, h2);
+				if(draw_color!=13){
+					g2.setColor(c[draw_color]);
+					g2.fillRect( w1, h1, w2, h2);
+				}
+				if(line_color!=13){
+					g2.setColor(c[line_color]);
+					g2.drawRect( w1, h1, w2, h2);
+				}
 			}else if(type == OVAL){
 				exchange(x1,y1,x2,y2);
-				g2.fillOval( w1, h1, w2, h2);
-				g2.setColor(c[line_color]);
-				g2.drawOval( w1, h1, w2, h2);
+				if(draw_color!=13){
+					g2.setColor(c[draw_color]);
+					g2.fillOval( w1, h1, w2, h2);
+				}
+				if(line_color!=13){
+					g2.setColor(c[line_color]);
+					g2.drawOval( w1, h1, w2, h2);
+				}
 			}
 		}
 

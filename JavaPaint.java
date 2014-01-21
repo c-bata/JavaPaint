@@ -20,12 +20,12 @@ public class JavaPaint extends JFrame implements ActionListener{
 		menu1.setMnemonic(KeyEvent.VK_F);
 		JMenu menu2 = new JMenu("編集(E)");
 		menu2.setMnemonic(KeyEvent.VK_E);
-		JMenu menu3 = new JMenu("ヘルプ(H)");
-		menu3.setMnemonic(KeyEvent.VK_H);
+		//JMenu menu3 = new JMenu("ヘルプ(H)");
+		//menu3.setMnemonic(KeyEvent.VK_H);
 		menubar.add(menu1);
 		menubar.add(menu2);
 		menubar.add(Box.createHorizontalGlue());	// ヘルプは右端に設定
-		menubar.add(menu3);
+		//menubar.add(menu3);
 
 		JMenu submenu1 = new JMenu("画像の形式を変更");
 		JRadioButtonMenuItem radiomenuitem1 = new JRadioButtonMenuItem("PNG");

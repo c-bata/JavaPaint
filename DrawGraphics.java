@@ -29,8 +29,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 	ArrayList<Integer> y2List        = new ArrayList<Integer>();
 	ArrayList<Integer> drawColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineColorList = new ArrayList<Integer>();
+	ArrayList<Integer> clearColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineWidthList = new ArrayList<Integer>();
-	//ArrayList<Integer> clearColorList = new ArrayList<Integer>();
 	ArrayList<String> textStringList = new ArrayList<String>();
 
 	JLabel position,info;
@@ -215,7 +215,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		dopanel.add(redoButton);
 
 		// スライダー
-		lineSlider = new JSlider(0, 512, 50);
+		lineSlider = new JSlider(0, 64, 5);
 		TitledBorder border2 = new TitledBorder(inborder1, "線の太さ", TitledBorder.CENTER, TitledBorder.TOP);
 		lineSlider.setBorder(border2);
 		lineSlider.setMajorTickSpacing(10);
@@ -308,8 +308,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 						y2List.add(Integer.parseInt(element[4]));
 						drawColorList.add(Integer.parseInt(element[5]));
 						lineColorList.add(Integer.parseInt(element[6]));
-						lineWidthList.add(Integer.parseInt(element[7]));
-						textStringList.add(element[8]);
+						clearColorList.add(Integer.parseInt(element[7]));
+						lineWidthList.add(Integer.parseInt(element[8]));
+						textStringList.add(element[9]);
 						//System.out.println(Integer.parseInt(element[0]) + " , " + Integer.parseInt(element[1]) + " , " + Integer.parseInt(element[2]) + " , " + Integer.parseInt(element[3]) + " , " + element[4] + " , " + typeList.size());
 					}
 					mouse.repaint();
@@ -346,6 +347,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				bw.write(y2List.get(i) + ",");
 				bw.write(drawColorList.get(i) + ",");
 				bw.write(lineColorList.get(i) + ",");
+				bw.write(clearColorList.get(i) + ",");
 				bw.write(lineWidthList.get(i) + ",");
 				bw.write(textStringList.get(i) + ",");
 				bw.newLine();
@@ -377,6 +379,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 					bw.write(y2List.get(i) + ",");
 					bw.write(drawColorList.get(i) + ",");
 					bw.write(lineColorList.get(i) + ",");
+					bw.write(clearColorList.get(i) + ",");
 					bw.write(lineWidthList.get(i) + ",");
 					bw.write(textStringList.get(i) + ",");
 					bw.newLine();
@@ -674,7 +677,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{
 
 		int x, y, w1, h1, w2, h2, x1, y1, x2, y2;
-		int lineWidth;
+		int lineWidth, clear_color;
 		boolean writeImage = false;
 		BufferedImage bi; //オフスクリーンイメージ
 		Graphics2D g2;  //Graphicsコンテキスト
@@ -693,7 +696,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 			y2List.clear();
 			drawColorList.clear();
 			lineColorList.clear();
+			clearColorList.clear();
 			lineWidthList.clear();
+			textStringList.clear();
 			// typeを0にすると次にボタンを押すまで図形が書けない
 			x1 = 0;
 			y1 = 0;
@@ -713,6 +718,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y2List.remove(b);
 				drawColorList.remove(b);
 				lineColorList.remove(b);
+				clearColorList.remove(b);
 				lineWidthList.remove(b);
 				textStringList.remove(b);
 			}
@@ -752,6 +758,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y2List.set(index,y2);
 				drawColorList.set(index,draw_color);
 				lineColorList.set(index,line_color);
+				clearColorList.set(index,clear_color);
 				lineWidthList.set(index,lineWidth);
 				if(textString == null){ textString = new String("???");}	//もしnullまら???を入れる
 				textStringList.set(index,textString);	// textの時でも,addしないとインデックスがずれる.
@@ -764,6 +771,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				y2List.add(y2);
 				drawColorList.add(draw_color);
 				lineColorList.add(line_color);
+				clearColorList.add(clear_color);
 				lineWidthList.add(lineWidth);
 				textStringList.add(textString);	// textの時でも,addしないとインデックスがずれる.
 			}
@@ -803,7 +811,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 			////////////////////////////////////////////////////
 
-			lineWidth = lineSlider.getValue()/10;
+			lineWidth = lineSlider.getValue();
+			clear_color = clearSlider.getValue();
 
 			if(antiAliasing == true){
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
@@ -818,32 +827,32 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 					if(typeList.get(i) == LINE){
 						if(lineColorList.get(i)!=13){
-							g2.setColor(c[lineColorList.get(i)]);
+							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							g2.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 						}
 					}else if(typeList.get(i) == RECT){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 						if(drawColorList.get(i)!=13){
-							g2.setColor(c[drawColorList.get(i)]);
+							g2.setColor(new Color(red[drawColorList.get(i)],green[drawColorList.get(i)],blue[drawColorList.get(i)],clearColorList.get(i)));
 							g2.fillRect( w1, h1, w2, h2);
 						}
 						if(lineColorList.get(i)!=13){
-							g2.setColor(c[lineColorList.get(i)]);
+							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							g2.drawRect( w1, h1, w2, h2);
 						}
 					}else if(typeList.get(i) == OVAL){
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 						if(drawColorList.get(i)!=13){
-							g2.setColor(c[drawColorList.get(i)]);
+							g2.setColor(new Color(red[drawColorList.get(i)],green[drawColorList.get(i)],blue[drawColorList.get(i)],clearColorList.get(i)));
 							g2.fillOval( w1, h1, w2, h2);
 						}
 						if(lineColorList.get(i)!=13){
-							g2.setColor(c[lineColorList.get(i)]);
+							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							g2.drawOval( w1, h1, w2, h2);
 						}
 					}else if(typeList.get(i) == TEXT){
 						if(lineColorList.get(i)!=13){
-							g2.setColor(c[lineColorList.get(i)]);
+							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							try{
 								g2.drawString(textStringList.get(i), x1List.get(i), y1List.get(i));
 							}catch(NullPointerException e){
@@ -859,32 +868,32 @@ class DrawGraphics extends JPanel implements ActionListener{
 			g2.setStroke(wideStroke);
 			if(type == LINE){
 				if(line_color!=13){
-					g2.setColor(c[line_color]);
+					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawLine(x1,y1,x2,y2);
 				}
 			}else if(type == RECT){
 				exchange(x1,y1,x2,y2);
 				if(draw_color!=13){
-					g2.setColor(c[draw_color]);
+					g2.setColor(new Color(red[draw_color],green[draw_color],blue[draw_color],clear_color));
 					g2.fillRect( w1, h1, w2, h2);
 				}
 				if(line_color!=13){
-					g2.setColor(c[line_color]);
+					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawRect( w1, h1, w2, h2);
 				}
 			}else if(type == OVAL){
 				exchange(x1,y1,x2,y2);
 				if(draw_color!=13){
-					g2.setColor(c[draw_color]);
+					g2.setColor(new Color(red[draw_color],green[draw_color],blue[draw_color],clear_color));
 					g2.fillOval( w1, h1, w2, h2);
 				}
 				if(line_color!=13){
-					g2.setColor(c[line_color]);
+					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawOval( w1, h1, w2, h2);
 				}
 			}else if(type == TEXT){
 				if(textString != null){
-					g2.setColor(c[line_color]);
+					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawString(textString, x, y);
 				}
 			}
@@ -965,6 +974,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			if(type != -1){
 				listAdd();
 			}
+			repaint();
 		}
 		public void mouseClicked(MouseEvent e){
 			if(textString != null){

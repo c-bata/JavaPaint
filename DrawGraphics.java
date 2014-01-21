@@ -30,6 +30,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	ArrayList<Integer> drawColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineWidthList = new ArrayList<Integer>();
+	//ArrayList<Integer> clearColorList = new ArrayList<Integer>();
 	ArrayList<String> textStringList = new ArrayList<String>();
 
 	JLabel position,info;
@@ -37,6 +38,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 	Color [] c = {Color.black, Color.blue, Color.cyan, Color.darkGray, Color.gray, Color.green, Color.lightGray, Color.magenta, Color.orange, Color.pink, Color.red, Color.white, Color.yellow};
 	int line_color = 0,draw_color = 13, back_color = 11;
 
+	//各カラーのRGBを記憶
+	int [] red = {0, 0, 0, 64, 128, 0, 192, 255, 255, 255, 255, 255, 255};
+	int [] green = {0, 0, 255, 64, 128,255,192,0,200,175,0,255,255};
+	int [] blue = {0, 255,255,64,128,0,192,255,0,175,0,255,0};
+	
 	JButton undoButton,redoButton;
 
 	BevelBorder raiseborder = new BevelBorder(BevelBorder.LOWERED);
@@ -44,7 +50,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	String [] list = {"黒","青","シアン","ダークグレー","グレー","緑","ライトグレー","マゼンタ","オレンジ","ピンク","赤","白","黃","なし"};
 	JRadioButton lineRadio, drawRadio, backRadio;
 	JLabel lineLabel, drawLabel, backLabel;
-	JSlider lineSlider;
+	JSlider lineSlider, clearSlider;
 
 	File presentFile = null; //現在編集中のファイルを保持
 
@@ -209,12 +215,20 @@ class DrawGraphics extends JPanel implements ActionListener{
 		dopanel.add(redoButton);
 
 		// スライダー
-		lineSlider = new JSlider();
+		lineSlider = new JSlider(0, 512, 50);
 		TitledBorder border2 = new TitledBorder(inborder1, "線の太さ", TitledBorder.CENTER, TitledBorder.TOP);
 		lineSlider.setBorder(border2);
 		lineSlider.setMajorTickSpacing(10);
 		lineSlider.setMinorTickSpacing(1);
 		lineSlider.setPaintTicks(true);
+
+		// スライダー
+		clearSlider = new JSlider(0, 255, 255);
+		TitledBorder border3 = new TitledBorder(inborder1, "透明度", TitledBorder.CENTER, TitledBorder.TOP);
+		clearSlider.setBorder(border3);
+		clearSlider.setMajorTickSpacing(10);
+		clearSlider.setMinorTickSpacing(1);
+		clearSlider.setPaintTicks(true);
 
 		JPanel sidepanel = new JPanel();
 		sidepanel.setBorder(new EmptyBorder( 5, 20, 5, 20));
@@ -223,6 +237,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		sidepanel.add(object);
 		sidepanel.add(new JSeparator());
 		sidepanel.add(lineSlider);
+		sidepanel.add(clearSlider);
 		sidepanel.add(color);
 		sidepanel.add(colorButtons);
 		sidepanel.add(new JSeparator());
@@ -699,6 +714,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				drawColorList.remove(b);
 				lineColorList.remove(b);
 				lineWidthList.remove(b);
+				textStringList.remove(b);
 			}
 			doCount = 0;
 		}
@@ -737,6 +753,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				drawColorList.set(index,draw_color);
 				lineColorList.set(index,line_color);
 				lineWidthList.set(index,lineWidth);
+				if(textString == null){ textString = new String("???");}	//もしnullまら???を入れる
 				textStringList.set(index,textString);	// textの時でも,addしないとインデックスがずれる.
 				doCount--;
 			}else{
@@ -827,7 +844,12 @@ class DrawGraphics extends JPanel implements ActionListener{
 					}else if(typeList.get(i) == TEXT){
 						if(lineColorList.get(i)!=13){
 							g2.setColor(c[lineColorList.get(i)]);
-							g2.drawString(textStringList.get(i), x1List.get(i), y1List.get(i));
+							try{
+								g2.drawString(textStringList.get(i), x1List.get(i), y1List.get(i));
+							}catch(NullPointerException e){
+								info.setText("エラー発生");
+								System.out.println(textString+ ","+textStringList.get(i));
+							}
 						}
 					}
 				}

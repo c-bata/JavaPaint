@@ -30,6 +30,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	ArrayList<Integer> drawColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineColorList = new ArrayList<Integer>();
 	ArrayList<Integer> lineWidthList = new ArrayList<Integer>();
+	ArrayList<String> textStringList = new ArrayList<String>();
 
 	JLabel position,info;
 
@@ -46,6 +47,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 	JSlider lineSlider;
 
 	File presentFile = null; //現在編集中のファイルを保持
+
+	String textString = null; //Text挿入で挿入する文字列
+
 	public DrawGraphics(){
 
 //////////////////////////////////////////////////////////////////////
@@ -134,7 +138,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		colorButtons.setLayout(new GridLayout(3,5));
 		colorButtons.setBorder(new EmptyBorder( 20, 20, 20, 20));
 
-		LineBorder inborder1 = new LineBorder(Color.gray, 1);
+		LineBorder inborder1 = new LineBorder(Color.lightGray, 1);
 		TitledBorder border1 = new TitledBorder(inborder1, "カラーパレット", TitledBorder.CENTER, TitledBorder.TOP);
 		//colorButtons.setPreferredSize(new Dimension(100,100));
 		colorButtons.setBorder(border1);
@@ -242,24 +246,15 @@ class DrawGraphics extends JPanel implements ActionListener{
 		bpencil.setBorder(borderRaised);
 	}
 
-	//引数ありのコンストラクタ.newFileの時はこっちのオブジェクト生成する。
-	//public DrawGraphics(String str){
-	//}
-
 	//////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
-	// 実装済み
 	public void newFile(){
 		mouse.initList();
 		mouse.repaint();
 		info.setText("新しい画像を生成しました.");
 		presentFile = null;
 	}
-
 	//////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////
-	//ArrayListを初期化→ファイルの内容をArrayListに追加していく.
-	// dataOpenメソッドで利用
 	private static boolean checkBeforeReadfile(File file){
 		if (file.exists()){
 			if (file.isFile() && file.canRead()){
@@ -268,8 +263,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		}
 		return false;
 	}
-
-	public void dataOpen(){ // ほぼ実装済み
+	public void dataOpen(){
 
 		mouse.initList(); // 一度ArrayListをクリア
 
@@ -300,6 +294,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 						drawColorList.add(Integer.parseInt(element[5]));
 						lineColorList.add(Integer.parseInt(element[6]));
 						lineWidthList.add(Integer.parseInt(element[7]));
+						textStringList.add(element[8]);
 						//System.out.println(Integer.parseInt(element[0]) + " , " + Integer.parseInt(element[1]) + " , " + Integer.parseInt(element[2]) + " , " + Integer.parseInt(element[3]) + " , " + element[4] + " , " + typeList.size());
 					}
 					mouse.repaint();
@@ -315,8 +310,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void saveAs(File file){
 		try{
@@ -339,6 +332,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				bw.write(drawColorList.get(i) + ",");
 				bw.write(lineColorList.get(i) + ",");
 				bw.write(lineWidthList.get(i) + ",");
+				bw.write(textStringList.get(i) + ",");
 				bw.newLine();
 			}
 			bw.close();
@@ -348,8 +342,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("ファイルが開けません");
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void save(){
 		if(presentFile != null){
@@ -371,6 +363,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 					bw.write(drawColorList.get(i) + ",");
 					bw.write(lineColorList.get(i) + ",");
 					bw.write(lineWidthList.get(i) + ",");
+					bw.write(textStringList.get(i) + ",");
 					bw.newLine();
 				}
 				bw.close();
@@ -383,13 +376,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("上書きできません.一度保存して下さい.");
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void imageOp(int a){
 		imageType = a;
 	}
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void dataExport(File file){
 		mouse.writeImage = true;
@@ -408,8 +398,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			System.out.println("error in write");
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void unDo(){
 		if(mouse.doCount < typeList.size()){
@@ -424,8 +412,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("can't undo!");
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void reDo(){
 		if(mouse.doCount > 0){
@@ -440,8 +426,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("can't redo!");
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void setAntiAliasing(boolean state){
 		mouse.antiAliasing = state;
@@ -452,8 +436,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("アンチエイリアシングを無効にしました.");
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void setGrid(boolean state){
 		mouse.setGrid = state;
@@ -464,8 +446,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("グリッド線を非表示にしました.");
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	public void actionPerformed(ActionEvent e) {
 		//String actionCommand = e.getActionCommand();
@@ -498,14 +478,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 			buttonRaised();
 			btext.setBorder(raiseborder);
 			type = TEXT;
+			new TextDialog();
 		}else if(obj==bselect){
 			buttonRaised();
 			bselect.setBorder(raiseborder);
 			type = SELECT;
-//		}else if(obj==linecolor){
-//			line_color = linecolor.getSelectedIndex();
-//		}else if(obj==drawcolor){
-//			draw_color = drawcolor.getSelectedIndex();
 		}else if(obj==bblack){
 			if(lineRadio.isSelected() == true){
 				line_color = 0;
@@ -678,8 +655,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			reDo();
 		}
 	}
-
-//////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{
 
@@ -710,6 +685,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			x2 = 0;
 			y2 = 0;
 			doCount = 0;
+			textString = null;
 		}
 
 		private void undoReset(){
@@ -761,6 +737,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				drawColorList.set(index,draw_color);
 				lineColorList.set(index,line_color);
 				lineWidthList.set(index,lineWidth);
+				textStringList.set(index,textString);	// textの時でも,addしないとインデックスがずれる.
 				doCount--;
 			}else{
 				typeList.add(type);
@@ -771,6 +748,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				drawColorList.add(draw_color);
 				lineColorList.add(line_color);
 				lineWidthList.add(lineWidth);
+				textStringList.add(textString);	// textの時でも,addしないとインデックスがずれる.
 			}
 		}
 
@@ -846,6 +824,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 							g2.setColor(c[lineColorList.get(i)]);
 							g2.drawOval( w1, h1, w2, h2);
 						}
+					}else if(typeList.get(i) == TEXT){
+						if(lineColorList.get(i)!=13){
+							g2.setColor(c[lineColorList.get(i)]);
+							g2.drawString(textStringList.get(i), x1List.get(i), y1List.get(i));
+						}
 					}
 				}
 			}
@@ -876,6 +859,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 				if(line_color!=13){
 					g2.setColor(c[line_color]);
 					g2.drawOval( w1, h1, w2, h2);
+				}
+			}else if(type == TEXT){
+				if(textString != null){
+					g2.setColor(c[line_color]);
+					g2.drawString(textString, x, y);
 				}
 			}
 		}
@@ -909,11 +897,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 		public void mousePressed(MouseEvent e){
-
 			if(doCount > 0){
 				undoReset();
 			}
-
 
 			if(setGrid == true){
 				x1 = gridPosition(e.getX());
@@ -941,14 +927,37 @@ class DrawGraphics extends JPanel implements ActionListener{
 			position.setText("開始(" + Integer.toString(x1) + "," + Integer.toString(y1) + ") -> 現在(" + Integer.toString(x2) + "," + Integer.toString(y2) + ")");
 		}
 		public void mouseMoved(MouseEvent e){
-			x = e.getX();
-			y = e.getY();
+			if(setGrid == true){
+				x = gridPosition(e.getX());
+				y = gridPosition(e.getY());
+			}else{
+				x = e.getX();
+				y = e.getY();
+			}
 			position.setText("(" + Integer.toString(x) + "," + Integer.toString(y) + ")");
+			if(textString != null){
+				repaint();     //コンポーネント全体を再描画
+			}
 		}
 		public void mouseReleased(MouseEvent e){
-			listAdd();
+			if(type != -1){
+				listAdd();
+			}
 		}
 		public void mouseClicked(MouseEvent e){
+			if(textString != null){
+				if(setGrid == true){
+					x1 = gridPosition(e.getX());
+					y1 = gridPosition(e.getY());
+				}else{
+					x1 = e.getX();
+					y1 = e.getY();
+				}
+				//listAdd();
+				textString = null;
+				type = -1; x1 = 0; y1 = 0;
+				buttonRaised();
+			}
 			repaint();     //コンポーネント全体を再描画
 		}
 		public void mouseEntered(MouseEvent e){
@@ -957,5 +966,40 @@ class DrawGraphics extends JPanel implements ActionListener{
 			position.setText("(none,none)");
 		}
 
+	}
+
+	//////////////////////////////////////////////////////////////
+	class TextDialog extends JDialog implements ActionListener{
+		JTextField field = new JTextField(8);
+		JButton save = new JButton("OK");
+		JButton cancel = new JButton("キャンセル");
+		TextDialog(){
+			setSize(200, 100);
+			//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			setLayout(new FlowLayout());
+			setModal(true);
+			JPanel panel = new JPanel();
+			panel.add(new JLabel("文字列:"));
+			panel.add(field);
+			add(panel);
+			JPanel panelb = new JPanel();
+			panelb.add(save);
+			panelb.add(cancel);
+			add(panelb);
+			save.addActionListener(this);
+			cancel.addActionListener(this);
+			setVisible(true);
+		}
+		public void actionPerformed(ActionEvent e){
+			String str = field.getText();
+			if(e.getSource() == save && str.equals("") == false){
+				textString = new String(str);
+				info.setText("画面をクリックして下さい.");
+			}else{
+				type = -1;
+				buttonRaised();
+			}
+			setVisible(false);
+		}
 	}
 }

@@ -39,9 +39,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 	int line_color = 0,draw_color = 13, back_color = 11;
 
 	//各カラーのRGBを記憶
-	int [] red   = {0, 0, 0, 64, 128, 0, 192, 255, 255, 255, 255, 255, 255};
-	int [] green = {0, 0, 255, 64, 128,255,192,0,200,175,0,255,255};
-	int [] blue  = {0, 255,255,64,128,0,192,255,0,175,0,255,0};
+	int [] red   = {0,   0,   0, 64, 128,   0, 192, 255, 255, 255, 255, 255, 255};
+	int [] green = {0,   0, 255, 64, 128, 255, 192,   0, 200, 175,   0, 255, 255};
+	int [] blue  = {0, 255, 255, 64, 128,   0, 192, 255,   0, 175,   0, 255,   0};
 	
 	JButton undoButton,redoButton;
 
@@ -845,7 +845,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 					BasicStroke wideStroke = new BasicStroke((float)lineWidthList.get(i));	// 線の太さ
 					g2.setStroke(wideStroke);
 
-					g2.setFont(new Font("Arial", Font.PLAIN, lineWidthList.get(i)*10));
+					g2.setFont(new Font("Arial", Font.PLAIN, lineWidthList.get(i)*7));
 
 
 
@@ -899,7 +899,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			BasicStroke wideStroke = new BasicStroke((float)lineWidth);	// 線の太さ
 			g2.setStroke(wideStroke);
 
-			g2.setFont(new Font("Arial", Font.PLAIN, lineWidth*10));
+			g2.setFont(new Font("Arial", Font.PLAIN, lineWidth*7));
 
 			if(type == LINE){
 				if(line_color!=13){
@@ -927,7 +927,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 					g2.drawOval( w1, h1, w2, h2);
 				}
 			}else if(type == TEXT){
-				if(textString != null){
+				if(textString != null && line_color!=13){
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawString(textString, x, y);
 				}

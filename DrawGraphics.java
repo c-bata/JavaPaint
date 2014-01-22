@@ -214,7 +214,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 		// スライダー
 		lineSlider = new JSlider(0, 64, 5);
-		TitledBorder border2 = new TitledBorder(inborder1, "線の太さ", TitledBorder.CENTER, TitledBorder.TOP);
+		TitledBorder border2 = new TitledBorder(inborder1, "線の太さ・文字サイズ", TitledBorder.CENTER, TitledBorder.TOP);
 		lineSlider.setBorder(border2);
 		lineSlider.setMajorTickSpacing(10);
 		lineSlider.setMinorTickSpacing(1);
@@ -839,8 +839,15 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 			if(typeList.size() > 0){
 				for(int i = 0 ; i < typeList.size() - doCount ; i++){
+
+
+
 					BasicStroke wideStroke = new BasicStroke((float)lineWidthList.get(i));	// 線の太さ
 					g2.setStroke(wideStroke);
+
+					g2.setFont(new Font("Arial", Font.PLAIN, lineWidthList.get(i)*10));
+
+
 
 					if(typeList.get(i) == LINE){
 						if(lineColorList.get(i)!=13){
@@ -887,8 +894,13 @@ class DrawGraphics extends JPanel implements ActionListener{
 				}
 			}
 
+
+
 			BasicStroke wideStroke = new BasicStroke((float)lineWidth);	// 線の太さ
 			g2.setStroke(wideStroke);
+
+			g2.setFont(new Font("Arial", Font.PLAIN, lineWidth*10));
+
 			if(type == LINE){
 				if(line_color!=13){
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));

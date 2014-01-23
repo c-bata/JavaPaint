@@ -15,8 +15,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 	DrawByMouse mouse;
 	BufferedImage bi = null;
 
-	JButton brect, bline, boval, broundrect, bpolyline, bselect, btext, bimage;
-	final int RECT = 1, OVAL = 2, LINE=3, ROUNDRECT=4, POLYLINE=5, SELECT=6, TEXT=7, IMAGE=8;
+	JButton brect, bline, boval, broundrect, btext, bimage;
+	final int RECT = 1, OVAL = 2, LINE=3, ROUNDRECT=4, TEXT=5, IMAGE=6;
 	int type = RECT;
 
 	final int PNG=1, GIF=2, JPG=3;
@@ -53,6 +53,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	File presentFile = null; //現在編集中のファイルを保持
 
 	String textString = null, fileString = null; //Text挿入で挿入する文字列
+	boolean okflag = false;
 
 	public DrawGraphics(){
 
@@ -60,8 +61,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		boval     = new JButton("", new ImageIcon("./img/oval.png"));
 		bline     = new JButton("", new ImageIcon("./img/line.png"));
 		broundrect  = new JButton("", new ImageIcon("./img/roundrect.png"));
-		bpolyline = new JButton("", new ImageIcon("./img/polyline.png"));
-		bselect   = new JButton("", new ImageIcon("./img/select.png"));
 		btext     = new JButton("", new ImageIcon("./img/text.png"));
 		bimage   = new JButton("", new ImageIcon("./img/image.png"));
 		//枠線の追加
@@ -72,8 +71,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		boval.addActionListener(this);
 		bline.addActionListener(this);
 		broundrect.addActionListener(this);
-		bpolyline.addActionListener(this);
-		bselect.addActionListener(this);
 		btext.addActionListener(this);
 		bimage.addActionListener(this);
 		//ボタンを置くパネルを作り，ボタンを配置
@@ -84,8 +81,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		object.add(boval);
 		object.add(bline);
 		object.add(broundrect);
-		object.add(bpolyline);
-		object.add(bselect);
 		object.add(btext);
 		object.add(bimage);
 
@@ -251,8 +246,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		boval.setBorder(borderRaised);
 		bline.setBorder(borderRaised);
 		broundrect.setBorder(borderRaised);
-		bpolyline.setBorder(borderRaised);
-		bselect.setBorder(borderRaised);
 		btext.setBorder(borderRaised);
 		bimage.setBorder(borderRaised);
 	}
@@ -260,10 +253,14 @@ class DrawGraphics extends JPanel implements ActionListener{
 	//////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
 	public void newFile(){
-		mouse.initList();
-		mouse.repaint();
-		info.setText("新しい画像を生成しました.");
-		presentFile = null;
+		new NewFileDialog();
+		if(okflag == true){
+			mouse.initList();
+			mouse.repaint();
+			info.setText("新規作成.");
+			presentFile = null;
+			okflag = false;
+		}
 	}
 	//////////////////////////////////////////////////////////////////////
 	private static boolean checkBeforeReadfile(File file){
@@ -481,10 +478,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			buttonRaised();
 			bline.setBorder(raiseborder);
 			type = LINE;
-		}else if(obj==bpolyline){
-			buttonRaised();
-			bpolyline.setBorder(raiseborder);
-			type = POLYLINE;
 		}else if(obj==broundrect){
 			buttonRaised();
 			broundrect.setBorder(raiseborder);
@@ -508,17 +501,12 @@ class DrawGraphics extends JPanel implements ActionListener{
 				System.out.println("エラー又は取消しがありました");
 			}
 
-
 			type = IMAGE;
 		}else if(obj==btext){
 			buttonRaised();
 			btext.setBorder(raiseborder);
 			type = TEXT;
 			new TextDialog();
-		}else if(obj==bselect){
-			buttonRaised();
-			bselect.setBorder(raiseborder);
-			type = SELECT;
 		}else if(obj==bblack){
 			if(lineRadio.isSelected() == true){
 				line_color = 0;
@@ -1067,7 +1055,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		JButton save = new JButton("OK");
 		JButton cancel = new JButton("キャンセル");
 
-		String[] font;
 
 		TextDialog(){
 			setSize(200, 120);
@@ -1080,6 +1067,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			add(panel);
 
 			//// Fontの取得
+			//String[] font;
 			//font = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 			//JComboBox combo = new JComboBox(font);
 			//add(combo);
@@ -1101,6 +1089,32 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}else{
 				type = -1;
 				buttonRaised();
+			}
+			setVisible(false);
+		}
+	}
+	//////////////////////////////////////////////////////////////
+	class NewFileDialog extends JDialog implements ActionListener{
+		JButton save = new JButton("OK");
+		JButton cancel = new JButton("キャンセル");
+
+		NewFileDialog(){
+			setSize(200, 120);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			setLayout(new FlowLayout());
+			setModal(true);
+			add(new JLabel("本当にいいですか？"));
+			JPanel panel = new JPanel();
+			panel.add(save);
+			panel.add(cancel);
+			add(panel);
+			save.addActionListener(this);
+			cancel.addActionListener(this);
+			setVisible(true);
+		}
+		public void actionPerformed(ActionEvent e){
+			if(e.getSource() == save){
+				okflag = true;
 			}
 			setVisible(false);
 		}

@@ -55,6 +55,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 	String textString = null, fileString = null; //Text挿入で挿入する文字列
 	boolean okflag = false;
 
+	int lineWidth;
+
 	public DrawGraphics(){
 
 		brect     = new JButton("", new ImageIcon("./img/rect.png"));
@@ -683,7 +685,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{
 
 		int x, y, w1, h1, w2, h2, x1, y1, x2, y2;
-		int lineWidth, clear_color;
+		int clear_color;
 		boolean writeImage = false;
 		BufferedImage bi; //オフスクリーンイメージ
 		Graphics2D g2;  //Graphicsコンテキスト
@@ -861,6 +863,16 @@ class DrawGraphics extends JPanel implements ActionListener{
 							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							g2.drawOval( w1, h1, w2, h2);
 						}
+					}else if(typeList.get(i) == ROUNDRECT){
+						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
+						if(drawColorList.get(i)!=13){
+							g2.setColor(new Color(red[drawColorList.get(i)],green[drawColorList.get(i)],blue[drawColorList.get(i)],clearColorList.get(i)));
+							g2.fillRoundRect( w1, h1, w2, h2, w2/3, h2/3);
+						}
+						if(lineColorList.get(i)!=13){
+							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
+							g2.drawRoundRect( w1, h1, w2, h2, w2/3, h2/3);
+						}
 					}else if(typeList.get(i) == TEXT){
 						if(lineColorList.get(i)!=13){
 							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
@@ -912,6 +924,16 @@ class DrawGraphics extends JPanel implements ActionListener{
 				if(line_color!=13){
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawOval( w1, h1, w2, h2);
+				}
+			}else if(type == ROUNDRECT){
+				exchange(x1,y1,x2,y2);
+				if(draw_color!=13){
+					g2.setColor(new Color(red[draw_color],green[draw_color],blue[draw_color],clear_color));
+					g2.fillRoundRect( w1, h1, w2, h2, w2/3, h2/3);
+				}
+				if(line_color!=13){
+					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
+					g2.drawRoundRect( w1, h1, w2, h2, w2/3, h2/3);
 				}
 			}else if(type == TEXT){
 				if(textString != null && line_color!=13){
@@ -1051,27 +1073,35 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	//////////////////////////////////////////////////////////////
 	class TextDialog extends JDialog implements ActionListener{
-		JTextField field = new JTextField(8);
+		JTextField field = new JTextField(16);
 		JButton save = new JButton("OK");
 		JButton cancel = new JButton("キャンセル");
 
+		JLabel sampletext = new JLabel("");
+
+		String[] font;
+		JComboBox combo;
+
 
 		TextDialog(){
-			setSize(200, 120);
+			setSize(300, 300);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			setLayout(new FlowLayout());
 			setModal(true);
 			JPanel panel = new JPanel();
 			panel.add(new JLabel("文字列:"));
 			panel.add(field);
+			field.addActionListener(this);
 			add(panel);
 
-			//// Fontの取得
-			//String[] font;
-			//font = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-			//JComboBox combo = new JComboBox(font);
-			//add(combo);
-
+			// Fontの取得
+			font = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+			combo = new JComboBox(font);
+			combo.setSelectedItem("Arial");
+			add(combo);
+			combo.addActionListener(this);
+			add(sampletext);
+			sampletext.setFont(new Font(font[combo.getSelectedIndex()], Font.PLAIN, lineWidth*7));
 			JPanel panelb = new JPanel();
 			panelb.add(save);
 			panelb.add(cancel);
@@ -1086,11 +1116,17 @@ class DrawGraphics extends JPanel implements ActionListener{
 			if(e.getSource() == save && str.equals("") == false){
 				textString = new String(str);
 				info.setText("画面をクリックして下さい.");
-			}else{
+				setVisible(false);
+			}else if(e.getSource() == cancel){
 				type = -1;
 				buttonRaised();
+				setVisible(false);
+			}else if(e.getSource() == field){
+				sampletext.setText(str);
+			}else if(e.getSource() == combo){
+				sampletext.setFont(new Font(font[combo.getSelectedIndex()], Font.PLAIN, lineWidth*7));
+				//sampletext.setFont(font[combo.getSelectedIndex()]);
 			}
-			setVisible(false);
 		}
 	}
 	//////////////////////////////////////////////////////////////

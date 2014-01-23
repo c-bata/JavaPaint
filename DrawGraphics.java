@@ -55,7 +55,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 	String textString = null, fileString = null; //Text挿入で挿入する文字列
 	boolean okflag = false;
 
-	int lineWidth;
+	int lineWidth, fontIndex = 0;
+
+	String[] font;			//コンピュータに入っているフォントを格納
 
 	public DrawGraphics(){
 
@@ -764,7 +766,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 				typeList.set(index,type);
 				x1List.set(index,x1);
 				y1List.set(index,y1);
-				x2List.set(index,x2);
+				if(type == TEXT){
+					x2List.add(fontIndex);
+				}else{
+					x2List.add(x2);
+				}
 				y2List.set(index,y2);
 				drawColorList.set(index,draw_color);
 				lineColorList.set(index,line_color);
@@ -780,7 +786,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 				typeList.add(type);
 				x1List.add(x1);
 				y1List.add(y1);
-				x2List.add(x2);
+				if(type == TEXT){
+					x2List.add(fontIndex);
+				}else{
+					x2List.add(x2);
+				}
 				y2List.add(y2);
 				drawColorList.add(draw_color);
 				lineColorList.add(line_color);
@@ -811,7 +821,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 		private void drawObject(){
 
 			//背景
-			//g2.setBackground(c[back_color]);
 			g2.setBackground(new Color(red[back_color],green[back_color],blue[back_color]));
 			g2.clearRect(0, 0, getWidth(), getHeight());
 
@@ -833,10 +842,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 					BasicStroke wideStroke = new BasicStroke((float)lineWidthList.get(i));	// 線の太さ
 					g2.setStroke(wideStroke);
-
-					g2.setFont(new Font("Arial", Font.PLAIN, lineWidthList.get(i)*7));
-
-
 
 					if(typeList.get(i) == LINE){
 						if(lineColorList.get(i)!=13){
@@ -875,6 +880,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 						}
 					}else if(typeList.get(i) == TEXT){
 						if(lineColorList.get(i)!=13){
+							g2.setFont(new Font(font[x2List.get(i)], Font.PLAIN, lineWidthList.get(i)*7)); // fontの種類は余ってるx2Listに入れてる.
 							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							try{
 								g2.drawString(textStringList.get(i), x1List.get(i), y1List.get(i));
@@ -898,7 +904,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 			BasicStroke wideStroke = new BasicStroke((float)lineWidth);	// 線の太さ
 			g2.setStroke(wideStroke);
 
-			g2.setFont(new Font("Arial", Font.PLAIN, lineWidth*7));
 
 			if(type == LINE){
 				if(line_color!=13){
@@ -937,6 +942,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				}
 			}else if(type == TEXT){
 				if(textString != null && line_color!=13){
+					g2.setFont(new Font(font[fontIndex], Font.PLAIN, lineWidth*7)); // fontの種類は余ってるx2Listに入れてる.
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawString(textString, x, y);
 				}
@@ -1068,40 +1074,37 @@ class DrawGraphics extends JPanel implements ActionListener{
 		public void mouseExited(MouseEvent e){
 			position.setText("(none,none)");
 		}
-
 	}
 
 	//////////////////////////////////////////////////////////////
 	class TextDialog extends JDialog implements ActionListener{
-		JTextField field = new JTextField(16);
+		JTextField field = new JTextField(10);
 		JButton save = new JButton("OK");
 		JButton cancel = new JButton("キャンセル");
 
-		JLabel sampletext = new JLabel("");
+		JLabel sampletext = new JLabel("<html>サンプルテキスト<br>sample text</html>");
 
-		String[] font;
 		JComboBox combo;
 
-
 		TextDialog(){
-			setSize(300, 300);
+			setSize(250, 250);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			setLayout(new FlowLayout());
 			setModal(true);
 			JPanel panel = new JPanel();
 			panel.add(new JLabel("文字列:"));
 			panel.add(field);
-			field.addActionListener(this);
 			add(panel);
 
 			// Fontの取得
 			font = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 			combo = new JComboBox(font);
 			combo.setSelectedItem("Arial");
+			combo.setPreferredSize(new Dimension(180, 40));
 			add(combo);
 			combo.addActionListener(this);
 			add(sampletext);
-			sampletext.setFont(new Font(font[combo.getSelectedIndex()], Font.PLAIN, lineWidth*7));
+			sampletext.setFont(new Font(font[combo.getSelectedIndex()], Font.PLAIN, 20));
 			JPanel panelb = new JPanel();
 			panelb.add(save);
 			panelb.add(cancel);
@@ -1109,23 +1112,21 @@ class DrawGraphics extends JPanel implements ActionListener{
 			save.addActionListener(this);
 			cancel.addActionListener(this);
 			setVisible(true);
-
 		}
+
 		public void actionPerformed(ActionEvent e){
 			String str = field.getText();
 			if(e.getSource() == save && str.equals("") == false){
 				textString = new String(str);
+				fontIndex = combo.getSelectedIndex();
 				info.setText("画面をクリックして下さい.");
 				setVisible(false);
 			}else if(e.getSource() == cancel){
 				type = -1;
 				buttonRaised();
 				setVisible(false);
-			}else if(e.getSource() == field){
-				sampletext.setText(str);
 			}else if(e.getSource() == combo){
-				sampletext.setFont(new Font(font[combo.getSelectedIndex()], Font.PLAIN, lineWidth*7));
-				//sampletext.setFont(font[combo.getSelectedIndex()]);
+				sampletext.setFont(new Font(font[combo.getSelectedIndex()], Font.PLAIN, 20));
 			}
 		}
 	}
@@ -1155,5 +1156,4 @@ class DrawGraphics extends JPanel implements ActionListener{
 			setVisible(false);
 		}
 	}
-
 }

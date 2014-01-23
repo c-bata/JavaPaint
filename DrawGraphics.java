@@ -280,7 +280,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		mouse.initList(); // 一度ArrayListをクリア
 
 		JFileChooser filechooser = new JFileChooser();
-		filechooser.addChoosableFileFilter(new JsonFilter()); // jsonにフィルタ
+		filechooser.addChoosableFileFilter(new JpfFilter()); // 拡張子jpfにフィルタ
 
 		int selected = filechooser.showOpenDialog(this);
 		if (selected == JFileChooser.APPROVE_OPTION){
@@ -311,7 +311,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 						clearColorList.add(Integer.parseInt(element[7]));
 						lineWidthList.add(Integer.parseInt(element[8]));
 						textStringList.add(element[9]);
-						//System.out.println(Integer.parseInt(element[0]) + " , " + Integer.parseInt(element[1]) + " , " + Integer.parseInt(element[2]) + " , " + Integer.parseInt(element[3]) + " , " + element[4] + " , " + typeList.size());
 					}
 					mouse.repaint();
 
@@ -491,6 +490,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			bimage.setBorder(raiseborder);
 
 			JFileChooser filechooser = new JFileChooser();
+			filechooser.addChoosableFileFilter(new ImageFilter()); // 画像にフィルタ
 			filechooser.setDialogTitle("画像を選択"); // titleを変更
 			int selected = filechooser.showSaveDialog(this);
 

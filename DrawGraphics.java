@@ -35,9 +35,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	JLabel position,info;
 
-	Color [] c = {Color.black, Color.blue, Color.cyan, Color.darkGray, Color.gray, Color.green, Color.lightGray, Color.magenta, Color.orange, Color.pink, Color.red, Color.white, Color.yellow};
 	int line_color = 0,draw_color = 13, back_color = 11;
-
+	String [] list = {"黒","青","シアン","ダークグレー","グレー","緑","ライトグレー","マゼンタ","オレンジ","ピンク","赤","白","黃","なし"};
 	//各カラーのRGBを記憶
 	int [] red   = {0,   0,   0, 64, 128,   0, 192, 255, 255, 255, 255, 255, 255};
 	int [] green = {0,   0, 255, 64, 128, 255, 192,   0, 200, 175,   0, 255, 255};
@@ -47,7 +46,6 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 	BevelBorder raiseborder = new BevelBorder(BevelBorder.LOWERED);
 	JButton bblack, bblue, bcyan, bdarkGray, bgray, bgreen, blightGray, bmagenta, borange, bpink, bred, bwhite, byellow, bclear;
-	String [] list = {"黒","青","シアン","ダークグレー","グレー","緑","ライトグレー","マゼンタ","オレンジ","ピンク","赤","白","黃","なし"};
 	JRadioButton lineRadio, drawRadio, backRadio;
 	JLabel lineLabel, drawLabel, backLabel;
 	JSlider lineSlider, clearSlider;
@@ -823,7 +821,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 		private void drawObject(){
 
 			//背景
-			g2.setBackground(c[back_color]);
+			//g2.setBackground(c[back_color]);
+			g2.setBackground(new Color(red[back_color],green[back_color],blue[back_color]));
 			g2.clearRect(0, 0, getWidth(), getHeight());
 
 			////////////////////////////////////////////////////
@@ -1067,15 +1066,24 @@ class DrawGraphics extends JPanel implements ActionListener{
 		JTextField field = new JTextField(8);
 		JButton save = new JButton("OK");
 		JButton cancel = new JButton("キャンセル");
+
+		String[] font;
+
 		TextDialog(){
-			setSize(200, 100);
-			//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			setSize(200, 120);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			setLayout(new FlowLayout());
 			setModal(true);
 			JPanel panel = new JPanel();
 			panel.add(new JLabel("文字列:"));
 			panel.add(field);
 			add(panel);
+
+			//// Fontの取得
+			//font = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+			//JComboBox combo = new JComboBox(font);
+			//add(combo);
+
 			JPanel panelb = new JPanel();
 			panelb.add(save);
 			panelb.add(cancel);
@@ -1083,6 +1091,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			save.addActionListener(this);
 			cancel.addActionListener(this);
 			setVisible(true);
+
 		}
 		public void actionPerformed(ActionEvent e){
 			String str = field.getText();

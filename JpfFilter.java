@@ -1,3 +1,4 @@
+/* ファイルチューザーダイアログの選択出来るファイルの拡張子をjpfに絞る */
 import java.io.File;
 import javax.swing.filechooser.FileFilter;
 

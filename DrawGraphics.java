@@ -22,41 +22,38 @@ class DrawGraphics extends JPanel implements ActionListener{
 	final int PNG=1, GIF=2, JPG=3;
 	int imageType = PNG;
 
-	ArrayList<Integer> typeList      = new ArrayList<Integer>();
-	ArrayList<Integer> x1List        = new ArrayList<Integer>();
-	ArrayList<Integer> x2List        = new ArrayList<Integer>();
-	ArrayList<Integer> y1List        = new ArrayList<Integer>();
-	ArrayList<Integer> y2List        = new ArrayList<Integer>();
-	ArrayList<Integer> drawColorList = new ArrayList<Integer>();
-	ArrayList<Integer> lineColorList = new ArrayList<Integer>();
-	ArrayList<Integer> clearColorList= new ArrayList<Integer>();
-	ArrayList<Integer> lineWidthList = new ArrayList<Integer>();
-	ArrayList<String> textStringList = new ArrayList<String>();
+	// 図形の情報はArrayListに格納していく．
+	ArrayList<Integer> typeList      = new ArrayList<Integer>();	// 図形の種類
+	ArrayList<Integer> x1List        = new ArrayList<Integer>();	// ドラッグ開始位置のx座標
+	ArrayList<Integer> x2List        = new ArrayList<Integer>();	// ドラッグ終了位置のx座標
+	ArrayList<Integer> y1List        = new ArrayList<Integer>();	// ドラッグ開始位置のy座標
+	ArrayList<Integer> y2List        = new ArrayList<Integer>();	// ドラッグ終了位置のy座標
+	ArrayList<Integer> drawColorList = new ArrayList<Integer>();	// 塗りつぶしの色
+	ArrayList<Integer> lineColorList = new ArrayList<Integer>();	// 線の色
+	ArrayList<Integer> clearColorList= new ArrayList<Integer>();	// 透明度
+	ArrayList<Integer> lineWidthList = new ArrayList<Integer>();	// 線の太さ
+	ArrayList<String> textStringList = new ArrayList<String>();		// 文字, 画像ファイルへのパス
 
 	JLabel position,info;
 
 	int line_color = 0,draw_color = 13, back_color = 11;
+	//各カラーのRGBを記憶. alpha値を指定するためにRGBをそれぞれ記憶する．
 	String [] list = {"黒","青","シアン","ダークグレー","グレー","緑","ライトグレー","マゼンタ","オレンジ","ピンク","赤","白","黃","なし"};
-	//各カラーのRGBを記憶
 	int [] red   = {0,   0,   0, 64, 128,   0, 192, 255, 255, 255, 255, 255, 255};
 	int [] green = {0,   0, 255, 64, 128, 255, 192,   0, 200, 175,   0, 255, 255};
 	int [] blue  = {0, 255, 255, 64, 128,   0, 192, 255,   0, 175,   0, 255,   0};
-	
-	JButton undoButton,redoButton;
 
+	//各コンポーネントの宣言
+	JButton undoButton,redoButton;
 	BevelBorder raiseborder = new BevelBorder(BevelBorder.LOWERED);
 	JButton bblack, bblue, bcyan, bdarkGray, bgray, bgreen, blightGray, bmagenta, borange, bpink, bred, bwhite, byellow, bclear;
 	JRadioButton lineRadio, drawRadio, backRadio;
 	JLabel lineLabel, drawLabel, backLabel;
 	JSlider lineSlider, clearSlider;
-
 	File presentFile = null; //現在編集中のファイルを保持
-
 	String textString = null, fileString = null; //Text挿入で挿入する文字列
 	boolean okflag = false;
-
 	int lineWidth, fontIndex = 0;
-
 	String[] font;			//コンピュータに入っているフォントを格納
 
 	public DrawGraphics(){
@@ -64,10 +61,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 		brect     = new JButton("", new ImageIcon("./img/rect.png"));
 		boval     = new JButton("", new ImageIcon("./img/oval.png"));
 		bline     = new JButton("", new ImageIcon("./img/line.png"));
-		broundrect  = new JButton("", new ImageIcon("./img/roundrect.png"));
+		broundrect= new JButton("", new ImageIcon("./img/roundrect.png"));
 		btext     = new JButton("", new ImageIcon("./img/text.png"));
-		bimage   = new JButton("", new ImageIcon("./img/image.png"));
-		//枠線の追加
+		bimage    = new JButton("", new ImageIcon("./img/image.png"));
+		// JButtonの枠線を,立体的に見えるように変更. 選択中のボタンは凹んで見える.
 		buttonRaised();
 		brect.setBorder(raiseborder);
 		//ActionListenerの設定
@@ -77,6 +74,15 @@ class DrawGraphics extends JPanel implements ActionListener{
 		broundrect.addActionListener(this);
 		btext.addActionListener(this);
 		bimage.addActionListener(this);
+
+		// ボタンの上にカーソルが来ると,マウスカーソルの画像を手の形に変更する.
+		brect.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		boval.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		bline.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		broundrect.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btext.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		bimage.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
 		//ボタンを置くパネルを作り，ボタンを配置
 		JPanel object = new JPanel();
 		object.setBorder(new EmptyBorder( 0, 20, 20, 20));
@@ -88,8 +94,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		object.add(btext);
 		object.add(bimage);
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
+		// JButtonに画像を挿入
 		bblack      = new JButton("", new ImageIcon("./img/black.png"));
 		bblue       = new JButton("", new ImageIcon("./img/blue.png"));
 		bcyan       = new JButton("", new ImageIcon("./img/cyan.png"));
@@ -105,6 +110,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		byellow     = new JButton("", new ImageIcon("./img/yellow.png"));
 		bclear      = new JButton("", new ImageIcon("./img/clear.png"));
 
+		// 各ボタンにアクションリスナーを設定.
 		bblack.addActionListener(this);
 		bblue.addActionListener(this);
 		bcyan.addActionListener(this);
@@ -120,6 +126,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		byellow.addActionListener(this);
 		bclear.addActionListener(this);
 
+		// カラーパネルのボタンの枠線を変更
 		Border colorborder = new EmptyBorder( 1, 1, 1, 1);
 		bblack.setBorder(colorborder);
 		bblue.setBorder(colorborder);
@@ -135,15 +142,16 @@ class DrawGraphics extends JPanel implements ActionListener{
 		bwhite.setBorder(colorborder);
 		byellow.setBorder(colorborder);
 		bclear.setBorder(colorborder);
+
+		// カラーパネルを作成し，枠線で囲む
 		JPanel colorButtons = new JPanel();
 		colorButtons.setLayout(new GridLayout(3,5));
 		colorButtons.setBorder(new EmptyBorder( 5, 20, 20, 20));
-
 		LineBorder inborder1 = new LineBorder(Color.lightGray, 1);
 		TitledBorder border1 = new TitledBorder(inborder1, "カラーパレット", TitledBorder.CENTER, TitledBorder.TOP);
-		//colorButtons.setPreferredSize(new Dimension(100,100));
 		colorButtons.setBorder(border1);
 
+		// カラーパネルにボタンを配置
 		colorButtons.add(bblack);
 		colorButtons.add(bwhite);
 		colorButtons.add(bdarkGray);
@@ -159,17 +167,13 @@ class DrawGraphics extends JPanel implements ActionListener{
 		colorButtons.add(byellow);
 		colorButtons.add(bclear);
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
+		// 画面下部に，マウスカーソルの位置やメッセージを表示するラベルを設置
 		JPanel footer = new JPanel();
 		FlowLayout footerlayout = new FlowLayout();	//左詰め
 		footerlayout.setAlignment(FlowLayout.LEFT);
 		footer.setLayout(footerlayout);
 		position = new JLabel("(none,none)");
-
 		info = new JLabel("");
-		//info.setForeground(Color.white);
-		//info.setBackground(Color.black); //Macのルック&フィールでは適用されない
 		footer.add(position);
 		footer.add(info);
 
@@ -183,6 +187,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		lineRadio.setSelected(true);
 		drawRadio.setSelected(false);
 		backRadio.setSelected(false);
+		// ラジオボタンをグループ化
 		ButtonGroup group = new ButtonGroup();
 		group.add(lineRadio);
 		group.add(drawRadio);
@@ -198,18 +203,19 @@ class DrawGraphics extends JPanel implements ActionListener{
 		color.add(backRadio);
 		color.add(backLabel);
 
-
 		//undo,redo
 		JPanel dopanel = new JPanel();
 		undoButton     = new JButton("元に戻す", new ImageIcon("./img/undo1.png"));
 		redoButton     = new JButton("やり直し", new ImageIcon("./img/redo1.png"));
 		undoButton.addActionListener(this);
 		redoButton.addActionListener(this);
-		//redoButton.setBorder(border);
+
+		undoButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		redoButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		dopanel.add(undoButton);
 		dopanel.add(redoButton);
 
-		// スライダー
+		// 文字サイズを変更できるスライダー
 		lineSlider = new JSlider(0, 64, 5);
 		TitledBorder border2 = new TitledBorder(inborder1, "線の太さ・文字サイズ", TitledBorder.CENTER, TitledBorder.TOP);
 		lineSlider.setBorder(border2);
@@ -217,7 +223,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		lineSlider.setMinorTickSpacing(1);
 		lineSlider.setPaintTicks(true);
 
-		// スライダー
+		// 透明度を変更できるスライダー
 		clearSlider = new JSlider(0, 255, 255);
 		TitledBorder border3 = new TitledBorder(inborder1, "透明度", TitledBorder.CENTER, TitledBorder.TOP);
 		clearSlider.setBorder(border3);
@@ -225,6 +231,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 		clearSlider.setMinorTickSpacing(1);
 		clearSlider.setPaintTicks(true);
 
+		// スライダーの上にカーソルが来ると，マウスカーソルの画像を手形に変更.
+		lineSlider.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		clearSlider.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+		// 各JPanelを配置
 		JPanel sidepanel = new JPanel();
 		sidepanel.setBorder(new EmptyBorder( 5, 20, 5, 20));
 		sidepanel.setLayout(new BoxLayout(sidepanel, BoxLayout.Y_AXIS));
@@ -244,7 +255,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 		add(sidepanel, BorderLayout.EAST);
 	}
 
-	public void buttonRaised(){
+	public void buttonRaised(){		//図形選択パネルの全てのボタンをRaiseさせる。
 		BevelBorder borderRaised = new BevelBorder(BevelBorder.RAISED);
 		brect.setBorder(borderRaised);
 		boval.setBorder(borderRaised);
@@ -254,20 +265,17 @@ class DrawGraphics extends JPanel implements ActionListener{
 		bimage.setBorder(borderRaised);
 	}
 
-	//////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////
-	public void newFile(){
+	public void newFile(){		//状態をリセットする．
 		new NewFileDialog();
 		if(okflag == true){
 			mouse.initList();
 			mouse.repaint();
-			info.setText("新規作成.");
+			info.setText("新規作成しました.");
 			presentFile = null;
 			okflag = false;
 		}
 	}
-	//////////////////////////////////////////////////////////////////////
-	private static boolean checkBeforeReadfile(File file){
+	private static boolean checkBeforeReadfile(File file){	//ファイルが存在するか調べる．
 		if (file.exists()){
 			if (file.isFile() && file.canRead()){
 				return true;
@@ -275,31 +283,25 @@ class DrawGraphics extends JPanel implements ActionListener{
 		}
 		return false;
 	}
-	public void dataOpen(){
-
+	public void dataOpen(){		//ベクター情報の保存されているファイルを開く
 		mouse.initList(); // 一度ArrayListをクリア
-
 		JFileChooser filechooser = new JFileChooser();
 		filechooser.addChoosableFileFilter(new JpfFilter()); // 拡張子jpfにフィルタ
-
 		int selected = filechooser.showOpenDialog(this);
 		if (selected == JFileChooser.APPROVE_OPTION){
 			File file = filechooser.getSelectedFile();
-
 			presentFile = file;
-
 			//System.out.println(file.getName());
-
 			try{
 				if (checkBeforeReadfile(file)){
 					BufferedReader br = new BufferedReader(new FileReader(file));
 					info.setText(file.getName() + "を読み込みました.");
 
 					String[] element = br.readLine().split(",", -1);
-					back_color = Integer.parseInt(element[0]);				//1行目は背景
+					back_color = Integer.parseInt(element[0]);			//1行目は背景の情報が保存されている.
 
 					String str;
-					while((str = br.readLine()) != null){
+					while((str = br.readLine()) != null){				// ArrayListに追加していく.
 						element = str.split(",", -1);
 						typeList.add(Integer.parseInt(element[0]));
 						x1List.add(Integer.parseInt(element[1]));
@@ -312,8 +314,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 						lineWidthList.add(Integer.parseInt(element[8]));
 						textStringList.add(element[9]);
 					}
-					mouse.repaint();
-
+					mouse.repaint();		// 描画
 					br.close();
 				}else{
 					info.setText("ファイルが見つからないか開けません");
@@ -325,12 +326,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 		}
 	}
-//////////////////////////////////////////////////////////////////////
-	public void saveAs(File file){
+	public void saveAs(File file){		//名前を付けて保存
 		try{
 			if (file.exists() == false){
 				file.createNewFile();
-				info.setText("ファイルがないので作ります");
+				info.setText("ファイルが存在しないため作成します．");
 			}
 
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
@@ -338,7 +338,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 			bw.write(back_color + ",");
 			bw.newLine();
-			for(int i=0; i < typeList.size() - mouse.doCount ; i++){
+			for(int i=0; i < typeList.size() - mouse.doCount ; i++){	// 各図形情報をカンマ区切りで書き込み
 				bw.write(typeList.get(i) + ",");
 				bw.write(x1List.get(i) + ",");
 				bw.write(y1List.get(i) + ",");
@@ -353,14 +353,12 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 			bw.close();
 			info.setText(file.getName() + "にセーブしました.");
-
 		}catch(IOException e){
 			System.out.println(e);
 			info.setText("ファイルが開けません");
 		}
 	}
-//////////////////////////////////////////////////////////////////////
-	public void save(){
+	public void save(){		//上書き保存
 		if(presentFile != null){
 			try{
 				if (presentFile.exists() == false){
@@ -371,7 +369,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 				BufferedWriter bw = new BufferedWriter(new FileWriter(presentFile));
 				bw.write(back_color + ",");
 				bw.newLine();
-				for(int i=0; i < typeList.size() - mouse.doCount ; i++){
+				for(int i=0; i < typeList.size() - mouse.doCount ; i++){	// 元に戻すを使っている可能性があるので，差分ではなくまるごと保存し直す.
 					bw.write(typeList.get(i) + ",");
 					bw.write(x1List.get(i) + ",");
 					bw.write(y1List.get(i) + ",");
@@ -395,12 +393,10 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("上書きできません.一度保存して下さい.");
 		}
 	}
-//////////////////////////////////////////////////////////////////////
-	public void imageOp(int a){
+	public void imageOp(int a){	//メニューバーから選択された出力画像のフォーマットを保存しておく.
 		imageType = a;
 	}
-//////////////////////////////////////////////////////////////////////
-	public void dataExport(File file){
+	public void dataExport(File file){	//画像を出力する．
 		mouse.writeImage = true;
 		mouse.repaint();
 		mouse.writeImage = false;
@@ -417,36 +413,34 @@ class DrawGraphics extends JPanel implements ActionListener{
 			System.out.println("error in write");
 		}
 	}
-//////////////////////////////////////////////////////////////////////
-	public void unDo(){
+	public void unDo(){		// やり直しの実行
 		if(mouse.doCount < typeList.size()){
 			mouse.doCount++;
 			mouse.repaint();
-			info.setText("undo!");
+			info.setText("「もとに戻す」を実行しました");
 			mouse.x1 = 0;
 			mouse.y1 = 0;
 			mouse.x2 = 0;
 			mouse.y2 = 0;
 		}else{
-			info.setText("can't undo!");
+			info.setText("現在，「元に戻す」は実行できません．");
 		}
 	}
-//////////////////////////////////////////////////////////////////////
-	public void reDo(){
+	public void reDo(){		//元に戻すの実行
 		if(mouse.doCount > 0){
 			mouse.doCount--;
 			mouse.repaint();
-			info.setText("redo!");
+			info.setText("「やり直し」を実行しました");
 			mouse.x1 = 0;
 			mouse.y1 = 0;
 			mouse.x2 = 0;
 			mouse.y2 = 0;
 		}else{
-			info.setText("can't redo!");
+			info.setText("現在，「やり直し」は実行できません．");
 		}
 	}
-//////////////////////////////////////////////////////////////////////
-	public void setAntiAliasing(boolean state){
+
+	public void setAntiAliasing(boolean state){		//アンチエイリアス
 		mouse.antiAliasing = state;
 		mouse.repaint();
 		if(state == true){
@@ -455,9 +449,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("アンチエイリアシングを無効にしました.");
 		}
 	}
-//////////////////////////////////////////////////////////////////////
-	public void setGrid(boolean state){
-		mouse.setGrid = state;
+
+	public void setGrid(boolean state){		//グリッド線
+		mouse.setGrid = state;			// メニューバーのチェックメニューアイテムの状態を取得し,チェックがついていたらグリッドを表示
 		mouse.repaint();
 		if(state == true){
 			info.setText("グリッド線を表示しました.");
@@ -465,11 +459,11 @@ class DrawGraphics extends JPanel implements ActionListener{
 			info.setText("グリッド線を非表示にしました.");
 		}
 	}
-//////////////////////////////////////////////////////////////////////
+
+	/* アクションイベント処理 */
 	public void actionPerformed(ActionEvent e) {
-		//String actionCommand = e.getActionCommand();
 		Object obj=e.getSource();
-		if(obj==brect){
+		if(obj==brect){	// 図形の種類を選択するボタン
 			buttonRaised();
 			brect.setBorder(raiseborder);
 			type = RECT;
@@ -496,7 +490,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 			if (selected == JFileChooser.APPROVE_OPTION){
 				File file = filechooser.getSelectedFile();
-				info.setText(file.getName());
+				info.setText(file.getName() + "を貼り付けます");
 				fileString = new String(file.getPath().toString());
 				mouse.repaint();
 			}else if (selected == JFileChooser.CANCEL_OPTION){
@@ -504,14 +498,13 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}else if (selected == JFileChooser.ERROR_OPTION){
 				System.out.println("エラー又は取消しがありました");
 			}
-
 			type = IMAGE;
 		}else if(obj==btext){
 			buttonRaised();
 			btext.setBorder(raiseborder);
 			type = TEXT;
 			new TextDialog();
-		}else if(obj==bblack){
+		}else if(obj==bblack){	// カラーパネル上のボタン
 			if(lineRadio.isSelected() == true){
 				line_color = 0;
 				lineLabel.setText(list[line_color]);
@@ -677,14 +670,14 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}else if(backRadio.isSelected() == true){
 				info.setText("背景にその色は設定できません");
 			}
-		}else if(obj==undoButton){
+		}else if(obj==undoButton){	// 元に戻す ボタン
 			unDo();
-		}else if(obj==redoButton){
+		}else if(obj==redoButton){	// やり直し ボタン
 			reDo();
 		}
 	}
-//////////////////////////////////////////////////////////////////////
-	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{
+
+	class DrawByMouse extends JPanel implements MouseListener,MouseMotionListener{	//描画領域
 
 		int x, y, w1, h1, w2, h2, x1, y1, x2, y2;
 		int clear_color;
@@ -692,11 +685,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 		BufferedImage bi; //オフスクリーンイメージ
 		Graphics2D g2;  //Graphicsコンテキスト
 		boolean antiAliasing = true, setGrid = true;
-
 		int doCount = 0;
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
 		//各リストを初期化
 		private void initList(){
 			typeList.clear();
@@ -720,6 +710,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			back_color = 11;
 		}
 
+		/* 元に戻すの情報をリセット */
 		private void undoReset(){
 			int a = typeList.size() ,b=typeList.size() - doCount;
 			for(int i=b;i<a;i++){
@@ -737,6 +728,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			doCount = 0;
 		}
 
+		/* 画面を生成 */
 		DrawByMouse(){
 			setBackground(Color.white);
 			setPreferredSize(new Dimension(600,600));
@@ -746,6 +738,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			g2 = bi.createGraphics(); //Graphicsコンテキストを得る
 		}
 
+		/* x1>x2,y1>y2 となるように値を入れ替え */
 		private void exchange(int a1, int b1, int a2, int b2){
 			if(a1 > a2){
 				w1 = a2; w2 = a1;
@@ -760,6 +753,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			w2-=w1;	h2-=h1;
 		}
 
+		/* 描いた図形の情報をArrayListに格納する */
 		private void listAdd(){
 			if(doCount > 0){
 				int index = typeList.size()-1-doCount; //インデックスは0からだから1引く
@@ -816,39 +810,34 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 		}
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+		/* 図形を描画する */
 		private void drawObject(){
-
 			//背景
 			g2.setBackground(new Color(red[back_color],green[back_color],blue[back_color]));
 			g2.clearRect(0, 0, getWidth(), getHeight());
 
-			////////////////////////////////////////////////////
-
+			// 線の太さと透明度を設定.
 			lineWidth = lineSlider.getValue();
 			clear_color = clearSlider.getValue();
 
-			if(antiAliasing == true){
+			if(antiAliasing == true){	// アンチエイリアシング
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 			}else{
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_OFF);
 			}
 
-			if(typeList.size() > 0){
+			if(typeList.size() > 0){	// もし過去に図形を描いていれば,それをもう一度描画する.
 				for(int i = 0 ; i < typeList.size() - doCount ; i++){
-
-
 
 					BasicStroke wideStroke = new BasicStroke((float)lineWidthList.get(i));	// 線の太さ
 					g2.setStroke(wideStroke);
 
-					if(typeList.get(i) == LINE){
+					if(typeList.get(i) == LINE){			// 直線の挿入
 						if(lineColorList.get(i)!=13){
 							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							g2.drawLine(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 						}
-					}else if(typeList.get(i) == RECT){
+					}else if(typeList.get(i) == RECT){		// 長方形の挿入
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 						if(drawColorList.get(i)!=13){
 							g2.setColor(new Color(red[drawColorList.get(i)],green[drawColorList.get(i)],blue[drawColorList.get(i)],clearColorList.get(i)));
@@ -858,7 +847,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							g2.drawRect( w1, h1, w2, h2);
 						}
-					}else if(typeList.get(i) == OVAL){
+					}else if(typeList.get(i) == OVAL){		// 円の挿入
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 						if(drawColorList.get(i)!=13){
 							g2.setColor(new Color(red[drawColorList.get(i)],green[drawColorList.get(i)],blue[drawColorList.get(i)],clearColorList.get(i)));
@@ -868,7 +857,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							g2.drawOval( w1, h1, w2, h2);
 						}
-					}else if(typeList.get(i) == ROUNDRECT){
+					}else if(typeList.get(i) == ROUNDRECT){	//角丸長方形の挿入
 						exchange(x1List.get(i), y1List.get(i), x2List.get(i), y2List.get(i));
 						if(drawColorList.get(i)!=13){
 							g2.setColor(new Color(red[drawColorList.get(i)],green[drawColorList.get(i)],blue[drawColorList.get(i)],clearColorList.get(i)));
@@ -878,7 +867,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
 							g2.drawRoundRect( w1, h1, w2, h2, w2/3, h2/3);
 						}
-					}else if(typeList.get(i) == TEXT){
+					}else if(typeList.get(i) == TEXT){		// 文字の挿入
 						if(lineColorList.get(i)!=13){
 							g2.setFont(new Font(font[x2List.get(i)], Font.PLAIN, lineWidthList.get(i)*7)); // fontの種類は余ってるx2Listに入れてる.
 							g2.setColor(new Color(red[lineColorList.get(i)],green[lineColorList.get(i)],blue[lineColorList.get(i)],clearColorList.get(i)));
@@ -889,7 +878,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 								System.out.println(textString+ ","+textStringList.get(i));
 							}
 						}
-					}else if(typeList.get(i) == IMAGE){
+					}else if(typeList.get(i) == IMAGE){		// 画像の挿入
 						try{
 							g2.drawImage(openImage(new File(textStringList.get(i))), x1List.get(i), y1List.get(i), this);
 						}catch(NullPointerException e){
@@ -901,16 +890,16 @@ class DrawGraphics extends JPanel implements ActionListener{
 
 
 
-			BasicStroke wideStroke = new BasicStroke((float)lineWidth);	// 線の太さ
+			BasicStroke wideStroke = new BasicStroke((float)lineWidth);	// 線の太さを変更
 			g2.setStroke(wideStroke);
 
 
-			if(type == LINE){
+			if(type == LINE){				// 直線の描画
 				if(line_color!=13){
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawLine(x1,y1,x2,y2);
 				}
-			}else if(type == RECT){
+			}else if(type == RECT){			// 四角形の描画
 				exchange(x1,y1,x2,y2);
 				if(draw_color!=13){
 					g2.setColor(new Color(red[draw_color],green[draw_color],blue[draw_color],clear_color));
@@ -920,7 +909,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawRect( w1, h1, w2, h2);
 				}
-			}else if(type == OVAL){
+			}else if(type == OVAL){			// 円の描画
 				exchange(x1,y1,x2,y2);
 				if(draw_color!=13){
 					g2.setColor(new Color(red[draw_color],green[draw_color],blue[draw_color],clear_color));
@@ -930,7 +919,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawOval( w1, h1, w2, h2);
 				}
-			}else if(type == ROUNDRECT){
+			}else if(type == ROUNDRECT){	// 角丸四角形の描画
 				exchange(x1,y1,x2,y2);
 				if(draw_color!=13){
 					g2.setColor(new Color(red[draw_color],green[draw_color],blue[draw_color],clear_color));
@@ -940,20 +929,20 @@ class DrawGraphics extends JPanel implements ActionListener{
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawRoundRect( w1, h1, w2, h2, w2/3, h2/3);
 				}
-			}else if(type == TEXT){
+			}else if(type == TEXT){		// 文字列の挿入
 				if(textString != null && line_color!=13){
 					g2.setFont(new Font(font[fontIndex], Font.PLAIN, lineWidth*7)); // fontの種類は余ってるx2Listに入れてる.
 					g2.setColor(new Color(red[line_color],green[line_color],blue[line_color],clear_color));
 					g2.drawString(textString, x, y);
 				}
-			}else if(type == IMAGE){
+			}else if(type == IMAGE){	// 画像の挿入
 				if (fileString != null){
 					g2.drawImage(openImage(new File(fileString)), x, y, this);
 				}
 			}
 		}
 
-//////////////////////////////////////////////////////////////////////////
+		/* グリッド線を表示 */
 		private void drawGrid(Graphics g){
 			for(int i=1;i<12;i++){
 				if(i!=6){
@@ -966,11 +955,12 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 		}
 
-		public int gridPosition(int a){	//位置を補正.(グリッド線)
+		/* グリッド線に合わせて,カーソル位置を補正 */
+		public int gridPosition(int a){
 			int b;
 			for(int i=0;i<=12;i++){
 				b = i*50;
-				if(Math.abs(b-a) < 8){				//グリッド線との距離が10より小さかったら.
+				if(Math.abs(b-a) < 8){	//グリッド線との距離が10より小さかったら.
 					a = i*50;
 					break;
 				}
@@ -978,6 +968,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			return a;
 		}
 
+		/* 画像ファイルを開く */
 		public BufferedImage openImage(File file){
 			BufferedImage buffImage = null;
 			try {
@@ -989,28 +980,27 @@ class DrawGraphics extends JPanel implements ActionListener{
 			return buffImage;
 		}
 
-//////////////////////////////////////////////////////////////////////////
 		public void mousePressed(MouseEvent e){
-			if(doCount > 0){
+			if(doCount > 0){	// 元に戻すを使っていたら.カウンタを初期化
 				undoReset();
 			}
 
-			if(setGrid == true){
+			if(setGrid == true){	//グリッド線を表示している時は,グリッド線に合わせてカーソルの位置を補正
 				x1 = gridPosition(e.getX());
 				y1 = gridPosition(e.getY());
 			}else{
 				x1 = e.getX();
 				y1 = e.getY();
 			}
-			x2 = x1; //x2,y2も初期化しないと一瞬へんな出力が起きる.
+			x2 = x1; //x2,y2も初期化しないと一瞬おかしな図形が表示される.
 			y2 = y1;
 		}
 		public void mouseDragged(MouseEvent e){ 
-			if(doCount > 0){
+			if(doCount > 0){	// 元に戻すを使っていたら.カウンタを初期化
 				undoReset();
 			}
 
-			if(setGrid == true){
+			if(setGrid == true){	//グリッド線を表示している時は,グリッド線に合わせてカーソルの位置を補正
 				x2 = gridPosition(e.getX());
 				y2 = gridPosition(e.getY());
 			}else{
@@ -1021,7 +1011,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			position.setText("開始(" + Integer.toString(x1) + "," + Integer.toString(y1) + ") -> 現在(" + Integer.toString(x2) + "," + Integer.toString(y2) + ")");
 		}
 		public void mouseMoved(MouseEvent e){
-			if(setGrid == true){
+			if(setGrid == true){	//グリッド線を表示している時は,グリッド線に合わせてカーソルの位置を補正
 				x = gridPosition(e.getX());
 				y = gridPosition(e.getY());
 			}else{
@@ -1035,7 +1025,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 
 		}
-		public void mouseReleased(MouseEvent e){
+		public void mouseReleased(MouseEvent e){	//ドラッグが終わったら,図形を描画する.
 			if(type != -1){
 				listAdd();
 			}
@@ -1050,10 +1040,9 @@ class DrawGraphics extends JPanel implements ActionListener{
 					x1 = e.getX();
 					y1 = e.getY();
 				}
-				//listAdd();
 				textString = null;
 				type = -1; x1 = 0; y1 = 0;
-				buttonRaised();
+				buttonRaised();		//文字列を挿入後は全てのボタンを上げた状態にする．
 			}else if(type == IMAGE && fileString != null){
 				if(setGrid == true){
 					x1 = gridPosition(e.getX());
@@ -1062,21 +1051,20 @@ class DrawGraphics extends JPanel implements ActionListener{
 					x1 = e.getX();
 					y1 = e.getY();
 				}
-				//listAdd();
 				fileString = null;
 				type = -1; x1 = 0; y1 = 0;
-				buttonRaised();
+				buttonRaised();		//画像を挿入後は全てのボタンを上げた状態にする．
 			}
 			repaint();     //コンポーネント全体を再描画
 		}
-		public void mouseEntered(MouseEvent e){
-		}
+		public void mouseEntered(MouseEvent e){}
 		public void mouseExited(MouseEvent e){
-			position.setText("(none,none)");
+			position.setText("(none,none)");	//マウスが描画領域から外れた時に,座標の表示を(none,none)にする.
 		}
 	}
 
-	//////////////////////////////////////////////////////////////
+	/* 「文字」を挿入する時に表示するダイアログ.
+	 * 挿入する文字列とフォントを指定出来る.*/
 	class TextDialog extends JDialog implements ActionListener{
 		JTextField field = new JTextField(10);
 		JButton save = new JButton("OK");
@@ -1096,7 +1084,7 @@ class DrawGraphics extends JPanel implements ActionListener{
 			panel.add(field);
 			add(panel);
 
-			// Fontの取得
+			/* コンピュータにインストールされているフォントを取得し，ＣｏｍｂｏＢｏｘを作成. */
 			font = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 			combo = new JComboBox(font);
 			combo.setSelectedItem("Arial");
@@ -1111,6 +1099,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 			add(panelb);
 			save.addActionListener(this);
 			cancel.addActionListener(this);
+			save.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			cancel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			setVisible(true);
 		}
 
@@ -1130,7 +1120,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 			}
 		}
 	}
-	//////////////////////////////////////////////////////////////
+
+	/* 「新規」を作成した時に表示する確認ダイアログ */
 	class NewFileDialog extends JDialog implements ActionListener{
 		JButton save = new JButton("OK");
 		JButton cancel = new JButton("キャンセル");
@@ -1147,6 +1138,8 @@ class DrawGraphics extends JPanel implements ActionListener{
 			add(panel);
 			save.addActionListener(this);
 			cancel.addActionListener(this);
+			save.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			cancel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			setVisible(true);
 		}
 		public void actionPerformed(ActionEvent e){
